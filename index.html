@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#f34e3f">
-  <meta name="description" content="大迪在面壁岩馆扫码播报工具">
-  <title>大迪在面壁 · 扫码播报</title>
+  <meta name="description" content="欢迎岩友关注大迪在面壁的小红书">
+  <title>欢迎关注大迪在面壁</title>
   <style>
     :root {
       color-scheme: light;
@@ -402,19 +402,19 @@
       <div class="brand-mark">迪</div>
       <div>
         <h1>大迪在面壁 · 扫码播报</h1>
-        <p>岩馆活动控制台</p>
+        <p>岩友关注活动控制台</p>
       </div>
     </header>
 
     <section class="card hero">
       <div>
-        <div class="eyebrow">Climb · Scan · Cheer</div>
-        <h2>有人扫码，<br>全场收到掌声。</h2>
-        <p class="lead">在现场 iPad 打开展示页并开启一次，二维码展示、扫码监听和声音播报都会留在同一页完成。</p>
+        <div class="eyebrow">Climb · Scan · Follow</div>
+        <h2>让岩友扫码，<br>关注大迪在面壁。</h2>
+        <p class="lead">现场 iPad 展示关注二维码；岩友扫码后自动打开小红书主页，并触发一声欢迎播报。</p>
         <div class="steps">
-          <div class="step"><b>1</b><span>iPad 打开岩友展示页</span></div>
-          <div class="step"><b>2</b><span>试听启动提示并进入展示</span></div>
-          <div class="step"><b>3</b><span>扫码响应，高手上线</span></div>
+          <div class="step"><b>1</b><span>iPad 打开现场海报</span></div>
+          <div class="step"><b>2</b><span>开启播报并展示二维码</span></div>
+          <div class="step"><b>3</b><span>岩友扫码，前往小红书</span></div>
         </div>
       </div>
       <div class="climb-art" aria-hidden="true">
@@ -455,7 +455,7 @@
           <article class="action-card">
             <div class="action-icon">🧗</div>
             <h3>iPad 现场展示</h3>
-            <p>推荐入口。先由你开启播报，操作层消失后只展示品牌和大二维码。</p>
+            <p>推荐入口。先由你开启播报，操作层消失后只展示欢迎岩友关注的海报和二维码。</p>
             <div class="action-buttons">
               <a id="posterOpen" class="btn green small" target="_blank" rel="noopener">打开</a>
               <button id="posterCopy" class="btn secondary small">复制</button>
@@ -504,19 +504,19 @@
       <section class="poster-setup-card">
         <div class="eyebrow">iPad 现场准备</div>
         <h3>开启播报并试听</h3>
-        <p>先关闭静音，并把 iPad“自动锁定”设为“永不”。听到“播报已开启”后，本操作层会自动消失；岩友只会看到扫码海报。</p>
+        <p>先关闭静音，并把 iPad“自动锁定”设为“永不”。听到“播报已开启”后，本操作层会自动消失；岩友只会看到欢迎关注的海报。</p>
         <button id="posterLiveStart" class="btn green">开启并试听</button>
         <div id="posterLiveStatus" class="status" aria-live="polite"></div>
       </section>
     </div>
     <section class="poster">
-      <div class="poster-kicker">大迪在面壁 · 岩馆限定</div>
-      <h2>扫一下，<br>让全场认识你。</h2>
-      <p class="poster-sub">动作有逻辑，发力讲科学</p>
+      <div class="poster-kicker">大迪在面壁 · 小红书</div>
+      <h2>岩友你好，<br>欢迎来小红书找我玩。</h2>
+      <p class="poster-sub">扫码关注「大迪在面壁」</p>
       <div id="posterQr" class="qr-box"></div>
       <div id="posterOnlineChip" class="online-chip">
         <i id="posterOnlineDot" class="online-dot"></i>
-        <span id="posterOnlineText">扫码后，高手已上线</span>
+        <span id="posterOnlineText">扫码直达小红书主页</span>
       </div>
       <div id="posterQrStatus" class="status" aria-live="polite"></div>
     </section>
@@ -545,9 +545,9 @@
   <main id="scanPage" class="mode-page hidden">
     <section id="scanCard" class="card mode-card">
       <div id="scanIcon" class="mode-icon">🧗</div>
-      <div class="eyebrow">大迪在面壁</div>
-      <h2 id="scanTitle">正在连接岩馆</h2>
-      <p id="scanText" class="lead">确认播报信号后，马上带你前往小红书。</p>
+      <div class="eyebrow">大迪在面壁 · 欢迎岩友</div>
+      <h2 id="scanTitle">正在前往小红书</h2>
+      <p id="scanText" class="lead">马上带你去「大迪在面壁」的小红书主页。</p>
       <div id="scanStatus" class="status" aria-live="polite"></div>
       <button id="jumpButton" class="btn secondary wide-btn hidden">立即前往小红书</button>
     </section>
@@ -1343,7 +1343,7 @@
         if (liveSurface === 'poster') {
           byId('posterOnlineDot').classList.add('pulse');
         } else {
-          byId('speakerTitle').textContent = '等待高手扫码';
+          byId('speakerTitle').textContent = '等待岩友扫码';
           byId('speakerText').textContent = '保持页面在前台。多个扫码会排队播报，不会互相覆盖。';
           byId('speakerStart').classList.add('hidden');
           byId('speakerSubActions').classList.remove('hidden');
@@ -1456,7 +1456,7 @@
             source: 'qr'
           });
           localStorage.setItem(lastKey, String(Date.now()));
-          updateScanSuccess('高手已上线！', '全场播报已触发。祝你上墙有劲，下墙平安。', '信号已送达');
+          updateScanSuccess('欢迎关注！', '正在为你打开“大迪在面壁”的小红书主页。', '谢谢岩友来玩');
           redirectTimer = setTimeout(go, 1200);
         } catch (error) {
           updateScanError(
