@@ -1,0 +1,1428 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f34e3f">
+  <meta name="description" content="大迪在面壁岩馆扫码播报工具">
+  <title>大迪在面壁 · 扫码播报</title>
+  <script src="https://static.cloudbase.net/cloudbase-js-sdk/2.27.1/cloudbase.full.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17202a;
+      --ink-soft: #35414c;
+      --muted: #6f7881;
+      --paper: #fff9ef;
+      --paper-2: #f6ecdd;
+      --card: rgba(255, 255, 255, .91);
+      --line: rgba(69, 48, 35, .13);
+      --red: #f34e3f;
+      --red-dark: #b92f25;
+      --gold: #f2b84b;
+      --green: #16835b;
+      --blue: #4263eb;
+      --shadow: 0 24px 70px rgba(70, 45, 28, .14);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
+        "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 0%, rgba(242, 184, 75, .28), transparent 34rem),
+        radial-gradient(circle at 100% 92%, rgba(243, 78, 63, .17), transparent 34rem),
+        var(--paper);
+    }
+    button, input, textarea { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+    .hidden { display: none !important; }
+    .shell {
+      width: min(1080px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 30px 0 56px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      margin-bottom: 24px;
+    }
+    .brand-mark {
+      width: 46px;
+      height: 46px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-size: 23px;
+      font-weight: 950;
+      background: linear-gradient(145deg, var(--red), var(--red-dark));
+      box-shadow: 0 11px 26px rgba(243, 78, 63, .26);
+    }
+    .brand h1 { margin: 0; font-size: clamp(21px, 3vw, 29px); letter-spacing: -.025em; }
+    .brand p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+    .card {
+      padding: clamp(20px, 4vw, 36px);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 32px;
+      align-items: center;
+    }
+    .eyebrow {
+      color: var(--red);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+    h2 {
+      margin: 10px 0 13px;
+      font-size: clamp(30px, 5.2vw, 54px);
+      line-height: 1.04;
+      letter-spacing: -.045em;
+    }
+    h3 { margin: 0; }
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.75;
+    }
+    .steps { display: grid; gap: 10px; margin-top: 24px; }
+    .step { display: flex; align-items: center; gap: 11px; color: var(--ink-soft); }
+    .step b {
+      flex: 0 0 auto;
+      width: 29px;
+      height: 29px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--red-dark);
+      background: #fff0e7;
+      font-size: 13px;
+    }
+    .climb-art {
+      min-height: 300px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 24px;
+      background:
+        linear-gradient(152deg, rgba(255,255,255,.08), transparent 42%),
+        linear-gradient(155deg, #17202a, #352925 52%, #852f27);
+    }
+    .climb-art::before,
+    .climb-art::after {
+      content: "";
+      position: absolute;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 50%;
+    }
+    .climb-art::before { width: 330px; height: 330px; left: -165px; top: -190px; }
+    .climb-art::after { width: 250px; height: 250px; right: -120px; bottom: -130px; }
+    .route-line {
+      position: absolute;
+      inset: 12% 24% 10% 30%;
+      border-left: 3px dashed rgba(255,255,255,.28);
+      transform: rotate(18deg);
+    }
+    .hold {
+      position: absolute;
+      border-radius: 49% 51% 44% 56%;
+      box-shadow: inset -10px -12px 18px rgba(70, 36, 10, .27),
+        0 14px 28px rgba(0,0,0,.23);
+      animation: float 4s ease-in-out infinite;
+    }
+    .hold.one { width: 88px; height: 66px; left: 17%; top: 17%; background: var(--gold); transform: rotate(17deg); }
+    .hold.two { width: 62px; height: 92px; right: 18%; top: 38%; background: #f06454; transform: rotate(31deg); animation-delay: -.9s; }
+    .hold.three { width: 46px; height: 45px; left: 29%; bottom: 16%; background: #58b894; animation-delay: -1.8s; }
+    .hold.four { width: 34px; height: 34px; right: 35%; top: 14%; background: #7597f5; animation-delay: -2.4s; }
+    .panel { margin-top: 22px; }
+    .form { display: grid; gap: 17px; }
+    label { display: grid; gap: 8px; font-weight: 800; font-size: 14px; }
+    input, textarea {
+      width: 100%;
+      padding: 13px 15px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      outline: none;
+      color: var(--ink);
+      background: rgba(255,255,255,.96);
+      transition: border-color .18s, box-shadow .18s;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--red);
+      box-shadow: 0 0 0 4px rgba(243,78,63,.1);
+    }
+    textarea { min-height: 105px; resize: vertical; line-height: 1.65; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn {
+      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 17px;
+      border: 0;
+      border-radius: 14px;
+      color: white;
+      background: linear-gradient(145deg, var(--red), var(--red-dark));
+      box-shadow: 0 10px 24px rgba(243,78,63,.22);
+      font-weight: 850;
+      text-decoration: none;
+      transition: transform .16s, opacity .16s;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:disabled { opacity: .52; cursor: wait; transform: none; }
+    .btn.secondary { color: var(--ink); background: white; border: 1px solid var(--line); box-shadow: none; }
+    .btn.green { background: linear-gradient(145deg, #1a986b, #106b4a); box-shadow: 0 10px 24px rgba(22,131,91,.22); }
+    .btn.small { min-height: 42px; font-size: 13px; }
+    .status { min-height: 23px; margin-top: 13px; color: var(--muted); font-size: 14px; line-height: 1.55; }
+    .status.ok { color: var(--green); }
+    .status.bad { color: #b12d24; }
+    .activity-panel { display: none; margin-top: 22px; }
+    .activity-panel.show { display: block; }
+    .activity-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .activity-tag {
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: var(--green);
+      background: rgba(22,131,91,.09);
+      font-size: 12px;
+      font-weight: 850;
+    }
+    .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; }
+    .action-card {
+      min-height: 190px;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 19px;
+      background: rgba(255,255,255,.86);
+    }
+    .action-icon { font-size: 31px; }
+    .action-card h3 { margin: 10px 0 7px; font-size: 18px; }
+    .action-card p { flex: 1; margin: 0 0 14px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .action-buttons { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+    .foot { margin: 18px 0 0; color: #8b939b; text-align: center; font-size: 12px; line-height: 1.6; }
+
+    .mode-page {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+    }
+    .mode-card { width: min(640px, 100%); text-align: center; }
+    .mode-icon {
+      width: 88px;
+      height: 88px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 20px;
+      border-radius: 27px;
+      color: white;
+      background: linear-gradient(145deg, var(--red), var(--red-dark));
+      box-shadow: 0 16px 38px rgba(243,78,63,.25);
+      font-size: 40px;
+    }
+    .mode-card h2 { font-size: clamp(31px, 7vw, 55px); }
+    .wide-btn { width: 100%; margin-top: 20px; min-height: 60px; font-size: 17px; }
+    .sub-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .counter-row { display: flex; justify-content: center; gap: 12px; margin-top: 21px; }
+    .counter {
+      min-width: 118px;
+      padding: 14px;
+      border-radius: 17px;
+      color: var(--red-dark);
+      background: #fff4e6;
+    }
+    .counter strong { display: block; font-size: 31px; line-height: 1; }
+    .counter span { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; }
+    .pulse { animation: pulse 1.8s infinite; }
+
+    .qr-shell {
+      width: min(560px, 100%);
+      text-align: center;
+    }
+    .qr-box {
+      width: min(310px, 76vw);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      margin: 22px auto 16px;
+      padding: 15px;
+      border: 1px solid rgba(0,0,0,.07);
+      border-radius: 24px;
+      background: white;
+      box-shadow: 0 18px 48px rgba(32,23,18,.16);
+    }
+    .qr-box img, .qr-box canvas { width: 100% !important; height: auto !important; }
+    .pair-note { margin-top: 12px; color: var(--muted); font-size: 13px; }
+
+    .poster-page {
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      padding: clamp(18px, 4vw, 42px);
+      color: white;
+      background:
+        radial-gradient(circle at 16% 8%, rgba(242,184,75,.30), transparent 27rem),
+        radial-gradient(circle at 92% 88%, rgba(243,78,63,.28), transparent 30rem),
+        linear-gradient(145deg, #11181e, #2d2624 55%, #662923);
+    }
+    .poster-page::before {
+      content: "";
+      position: absolute;
+      width: 58vmin;
+      height: 58vmin;
+      left: -29vmin;
+      top: -28vmin;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 50%;
+    }
+    .poster-setup {
+      position: fixed;
+      z-index: 20;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      background: rgba(10, 14, 17, .76);
+      backdrop-filter: blur(12px);
+    }
+    .poster-setup-card {
+      width: min(460px, 100%);
+      padding: 28px;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 24px;
+      color: white;
+      background: rgba(28, 31, 32, .94);
+      box-shadow: 0 24px 70px rgba(0,0,0,.35);
+      text-align: center;
+    }
+    .poster-setup-card h3 { margin: 9px 0 10px; font-size: clamp(25px, 6vw, 36px); }
+    .poster-setup-card p { margin: 0; color: rgba(255,255,255,.68); line-height: 1.65; }
+    .poster-setup-card .btn { width: 100%; margin-top: 18px; }
+    .poster-setup-card .status { margin-bottom: 0; }
+    .poster {
+      width: min(760px, 100%);
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+    .poster-kicker { color: #ffd37a; font-weight: 900; letter-spacing: .16em; font-size: 13px; }
+    .poster h2 { margin: 12px 0 7px; font-size: clamp(42px, 10vw, 88px); letter-spacing: -.055em; }
+    .poster-sub { margin: 0; color: rgba(255,255,255,.72); font-size: clamp(16px, 3vw, 22px); }
+    .poster .qr-box { width: min(350px, 72vw); margin-top: 27px; }
+    .online-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 17px;
+      padding: 9px 14px;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.9);
+      font-weight: 800;
+    }
+    .online-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #70e39c;
+      box-shadow: 0 0 0 7px rgba(112,227,156,.12);
+    }
+    .poster-hold {
+      position: absolute;
+      border-radius: 48% 52% 45% 55%;
+      opacity: .62;
+      filter: drop-shadow(0 14px 24px rgba(0,0,0,.25));
+      animation: drift 6s ease-in-out infinite;
+    }
+    .poster-hold.a { width: 90px; height: 62px; left: 5%; top: 20%; background: var(--gold); transform: rotate(21deg); }
+    .poster-hold.b { width: 66px; height: 100px; right: 4%; top: 28%; background: var(--red); transform: rotate(-18deg); animation-delay: -2s; }
+    .poster-hold.c { width: 48px; height: 45px; left: 10%; bottom: 12%; background: #58b894; animation-delay: -4s; }
+    .poster-page .status { color: rgba(255,255,255,.72); }
+    .poster-page .status.ok { color: #9ff0bb; }
+    .poster-page .status.bad { color: #ffb6ae; }
+
+    .scan-success .mode-icon { background: linear-gradient(145deg, #1a986b, #106b4a); }
+    .scan-error .mode-icon { background: linear-gradient(145deg, #e08b27, #a85a16); }
+    .tiny { color: var(--muted); font-size: 12px; line-height: 1.55; }
+
+    @keyframes float {
+      0%,100% { translate: 0 0; }
+      50% { translate: 0 -8px; }
+    }
+    @keyframes drift {
+      0%,100% { translate: 0 0; }
+      50% { translate: 0 -13px; }
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(22,131,91,.28); }
+      50% { box-shadow: 0 0 0 20px rgba(22,131,91,0); }
+    }
+
+    @media (max-width: 780px) {
+      .shell { width: min(100% - 22px, 1080px); padding-top: 18px; }
+      .hero, .row, .action-grid { grid-template-columns: 1fr; }
+      .climb-art { min-height: 205px; }
+      .activity-head { display: block; }
+      .activity-tag { display: inline-block; margin-top: 9px; }
+      .action-card { min-height: 165px; }
+      .counter-row { gap: 8px; }
+      .counter { min-width: 102px; }
+    }
+  </style>
+</head>
+<body>
+  <main id="adminPage" class="shell hidden">
+    <header class="brand">
+      <div class="brand-mark">迪</div>
+      <div>
+        <h1>大迪在面壁 · 扫码播报</h1>
+        <p>岩馆活动控制台</p>
+      </div>
+    </header>
+
+    <section class="card hero">
+      <div>
+        <div class="eyebrow">Climb · Scan · Cheer</div>
+        <h2>有人扫码，<br>全场收到掌声。</h2>
+        <p class="lead">在现场 iPad 打开展示页并开启一次，二维码展示、扫码监听和声音播报都会留在同一页完成。</p>
+        <div class="steps">
+          <div class="step"><b>1</b><span>iPad 打开岩友展示页</span></div>
+          <div class="step"><b>2</b><span>试听启动提示并进入展示</span></div>
+          <div class="step"><b>3</b><span>扫码响应，高手上线</span></div>
+        </div>
+      </div>
+      <div class="climb-art" aria-hidden="true">
+        <div class="route-line"></div>
+        <i class="hold one"></i>
+        <i class="hold two"></i>
+        <i class="hold three"></i>
+        <i class="hold four"></i>
+      </div>
+    </section>
+
+    <section class="card panel">
+      <div class="form">
+        <label>
+          小红书主页分享链接
+          <input id="targetInput" type="url" inputmode="url" autocomplete="off">
+        </label>
+        <label>
+          播报内容
+          <textarea id="speechInput"></textarea>
+        </label>
+        <div class="row">
+          <button id="publishButton" class="btn">创建本次活动</button>
+          <button id="restoreButton" class="btn secondary">恢复上次活动</button>
+        </div>
+      </div>
+      <div id="adminStatus" class="status" aria-live="polite"></div>
+
+      <section id="activityPanel" class="activity-panel">
+        <div class="activity-head">
+          <div>
+            <div class="eyebrow">本次活动已就绪</div>
+            <h3 style="margin-top:7px">一个现场入口，两个备用工具</h3>
+          </div>
+          <span id="activityTag" class="activity-tag"></span>
+        </div>
+        <div class="action-grid">
+          <article class="action-card">
+            <div class="action-icon">🧗</div>
+            <h3>iPad 现场展示</h3>
+            <p>推荐入口。先由你开启播报，操作层消失后只展示品牌和大二维码。</p>
+            <div class="action-buttons">
+              <a id="posterOpen" class="btn green small" target="_blank" rel="noopener">打开</a>
+              <button id="posterCopy" class="btn secondary small">复制</button>
+            </div>
+          </article>
+          <article class="action-card">
+            <div class="action-icon">🔊</div>
+            <h3>独立播报台（备用）</h3>
+            <p>只在另用一台设备出声时配对；这是工作人员工具，不给岩友展示。</p>
+            <div class="action-buttons">
+              <a id="pairOpen" class="btn secondary small" target="_blank" rel="noopener">打开</a>
+              <button id="pairCopy" class="btn secondary small">复制</button>
+            </div>
+          </article>
+          <article class="action-card">
+            <div class="action-icon">🧪</div>
+            <h3>扫码链路测试</h3>
+            <p>用测试入口验证写入、播报与小红书跳转，正式使用前至少测一次。</p>
+            <div class="action-buttons">
+              <a id="scanOpen" class="btn secondary small" target="_blank" rel="noopener">测试</a>
+              <button id="scanCopy" class="btn secondary small">复制</button>
+            </div>
+          </article>
+        </div>
+      </section>
+    </section>
+    <p class="foot">系统只记录一次匿名扫码信号，不识别扫码者，也不能验证是否真的关注。</p>
+  </main>
+
+  <main id="pairPage" class="mode-page hidden">
+    <section class="card qr-shell">
+      <div class="eyebrow">播报设备配对</div>
+      <h2>让现场设备<br>进入播报台</h2>
+      <p class="lead">这是工作人员备用入口。用负责出声的手机或 iPad 扫码，打开后点一次“开启并试听”。</p>
+      <div id="pairQr" class="qr-box"></div>
+      <div id="pairStatus" class="status" aria-live="polite"></div>
+      <p class="pair-note">保持页面在前台，关闭静音并调高媒体音量。</p>
+    </section>
+  </main>
+
+  <main id="posterPage" class="poster-page hidden">
+    <i class="poster-hold a" aria-hidden="true"></i>
+    <i class="poster-hold b" aria-hidden="true"></i>
+    <i class="poster-hold c" aria-hidden="true"></i>
+    <div id="posterSetup" class="poster-setup">
+      <section class="poster-setup-card">
+        <div class="eyebrow">iPad 现场准备</div>
+        <h3>开启播报并试听</h3>
+        <p>先关闭静音，并把 iPad“自动锁定”设为“永不”。听到“播报已开启”后，本操作层会自动消失；岩友只会看到扫码海报。</p>
+        <button id="posterLiveStart" class="btn green">开启并试听</button>
+        <div id="posterLiveStatus" class="status" aria-live="polite"></div>
+      </section>
+    </div>
+    <section class="poster">
+      <div class="poster-kicker">大迪在面壁 · 岩馆限定</div>
+      <h2>扫一下，<br>让全场认识你。</h2>
+      <p class="poster-sub">动作有逻辑，发力讲科学</p>
+      <div id="posterQr" class="qr-box"></div>
+      <div id="posterOnlineChip" class="online-chip">
+        <i id="posterOnlineDot" class="online-dot"></i>
+        <span id="posterOnlineText">扫码后，高手已上线</span>
+      </div>
+      <div id="posterQrStatus" class="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <main id="speakerPage" class="mode-page hidden">
+    <section class="card mode-card">
+      <div id="speakerIcon" class="mode-icon">🔊</div>
+      <div class="eyebrow">大迪在面壁 · 现场播报台</div>
+      <h2 id="speakerTitle">准备接收扫码</h2>
+      <p id="speakerText" class="lead">点一次按钮授权声音播放。开启后请保持页面在前台。</p>
+      <button id="speakerStart" class="btn green wide-btn">开启并试听</button>
+      <div id="speakerSubActions" class="sub-actions hidden">
+        <button id="speakerTest" class="btn secondary">试听一次</button>
+        <button id="speakerReconnect" class="btn secondary">重新连接</button>
+      </div>
+      <div id="speakerCounters" class="counter-row hidden">
+        <div class="counter"><strong id="receivedCount">0</strong><span>收到扫码</span></div>
+        <div class="counter"><strong id="spokenCount">0</strong><span>完成播报</span></div>
+      </div>
+      <div id="speakerStatus" class="status" aria-live="polite"></div>
+      <p class="tiny">固定音频会优先播放；加载失败时自动改用设备中文语音。不要与 iPad 展示页同时开启。</p>
+    </section>
+  </main>
+
+  <main id="scanPage" class="mode-page hidden">
+    <section id="scanCard" class="card mode-card">
+      <div id="scanIcon" class="mode-icon">🧗</div>
+      <div class="eyebrow">大迪在面壁</div>
+      <h2 id="scanTitle">正在连接岩馆</h2>
+      <p id="scanText" class="lead">确认播报信号后，马上带你前往小红书。</p>
+      <div id="scanStatus" class="status" aria-live="polite"></div>
+      <button id="jumpButton" class="btn secondary wide-btn hidden">立即前往小红书</button>
+    </section>
+  </main>
+
+  <main id="errorPage" class="mode-page hidden">
+    <section class="card mode-card">
+      <div id="errorIcon" class="mode-icon">?</div>
+      <div id="errorEyebrow" class="eyebrow">链接不完整</div>
+      <h2 id="errorTitle">请重新生成二维码</h2>
+      <p id="errorText" class="lead">这个活动入口缺少必要信息，请联系现场工作人员。</p>
+      <a id="errorAction" class="btn green wide-btn hidden">打开正确入口</a>
+    </section>
+  </main>
+
+  <audio id="announcementAudio" preload="auto" playsinline x-webkit-airplay="allow" aria-hidden="true">
+    <source src="announce.m4a" type="audio/mp4">
+  </audio>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var ENV_ID = 'dadi-climb-d6g91rnn034b36f1f';
+      var REGION = 'ap-shanghai';
+      var COLLECTION = 'scan_signals';
+      var PUBLIC_BASE_URL = 'https://scan.dadi-climb.cn/';
+      var DEFAULT_TARGET = 'https://xhslink.cn/m/6WxO9KMNJQM';
+      var DEFAULT_SPEECH = '感谢大佬关注“大迪在面壁”！愿大佬动作有逻辑，发力讲科学；上墙有劲，下墙平安，V6酷酷拿下，难线统统不怕！';
+      var DEFAULT_TTS_SPEECH = '感谢大佬，关注大迪在面壁！愿大佬，动作有逻辑，发力讲科学；上墙有劲，下墙平安！V六，酷酷拿下；难线，统统不怕！';
+      var AUDIO_FILE = 'announce.m4a';
+      var READY_AUDIO_FILE = 'ready.m4a';
+      var QR_SOURCES = [
+        'https://cdn.bootcdn.net/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
+        'https://cdn.staticfile.net/qrcodejs/1.0.0/qrcode.min.js',
+        'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js'
+      ];
+      var SCAN_DEDUPE_MS = 3500;
+      var CONFIG_TIMEOUT_MS = 4200;
+      var WRITE_TIMEOUT_MS = 4800;
+      var EVENT_PAGE_SIZE = 1000;
+      var CATCHUP_INTERVAL_MS = 8000;
+
+      var params = new URLSearchParams(location.search);
+      var mode = params.get('mode') || 'admin';
+      if (mode === 'listen') mode = 'speaker';
+      var eventId = params.get('event') || '';
+      var app = null;
+      var db = null;
+      var activeConfig = null;
+      var watcher = null;
+      var pollTimer = null;
+      var catchupTimer = null;
+      var watchBaselineTimer = null;
+      var wakeLock = null;
+      var audioContext = null;
+      var speakerStarted = false;
+      var baselineReady = false;
+      var watchDelivered = false;
+      var syncInFlight = false;
+      var pollInFlight = false;
+      var seenDocs = new Set();
+      var audioQueue = [];
+      var queueBusy = false;
+      var received = 0;
+      var spoken = 0;
+      var fixedAudioAvailable = true;
+      var configuredAudioFile = AUDIO_FILE;
+      var liveSurface = 'speaker';
+
+      function byId(id) { return document.getElementById(id); }
+      function show(id) { byId(id).classList.remove('hidden'); }
+      function sleep(ms) { return new Promise(function (resolve) { setTimeout(resolve, ms); }); }
+      function setStatus(element, text, kind) {
+        element.textContent = text;
+        element.className = 'status' + (kind ? ' ' + kind : '');
+      }
+      function readableError(error, fallback) {
+        var message = String(error && error.message || error || '');
+        if (/network request error|failed to fetch|networkerror|cors/i.test(message)) {
+          return '当前网页地址尚未加入云端安全来源：' + location.host + '。请改用正式网址，或先放行这个测试地址。';
+        }
+        return message || fallback || '操作失败，请重试';
+      }
+      function liveStatusElement() {
+        return liveSurface === 'poster' ? byId('posterLiveStatus') : byId('speakerStatus');
+      }
+      function setLiveStatus(text, kind) {
+        setStatus(liveStatusElement(), text, kind);
+      }
+      function showFileModeError() {
+        byId('errorIcon').textContent = '↗';
+        byId('errorEyebrow').textContent = '打开方式不正确';
+        byId('errorTitle').textContent = '不要直接打开 index.html';
+        byId('errorText').textContent = '本地文件没有可用的网站来源，无法创建活动或连接云数据库。请通过网页地址运行。';
+        var action = byId('errorAction');
+        action.href = PUBLIC_BASE_URL;
+        action.textContent = '打开线上活动控制台';
+        action.classList.remove('hidden');
+        show('errorPage');
+      }
+      function refreshLiveCounts() {
+        byId('receivedCount').textContent = String(received);
+        byId('spokenCount').textContent = String(spoken);
+      }
+      function setLivePulse(active) {
+        byId('speakerIcon').classList.toggle('pulse', Boolean(active));
+        byId('posterOnlineDot').classList.toggle('pulse', Boolean(active));
+      }
+      function withTimeout(promise, ms, message) {
+        var timeout = new Promise(function (_, reject) {
+          setTimeout(function () { reject(new Error(message || '操作超时')); }, ms);
+        });
+        return Promise.race([promise, timeout]);
+      }
+      function baseUrl() {
+        if (location.protocol === 'https:') return new URL(PUBLIC_BASE_URL);
+        var url = new URL(location.href);
+        url.search = '';
+        url.hash = '';
+        return url;
+      }
+      function isHostedRuntime() {
+        return location.protocol === 'https:';
+      }
+      function modeUrl(nextMode, id) {
+        var url = baseUrl();
+        url.searchParams.set('mode', nextMode);
+        url.searchParams.set('event', id);
+        return url.href;
+      }
+      function randomId(prefix) {
+        try {
+          var bytes = new Uint8Array(12);
+          crypto.getRandomValues(bytes);
+          return prefix + '-' + Array.from(bytes).map(function (n) {
+            return n.toString(16).padStart(2, '0');
+          }).join('');
+        } catch (_) {
+          return prefix + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
+        }
+      }
+      function safeXhsUrl(value) {
+        try {
+          var url = new URL(value);
+          var host = url.hostname.toLowerCase();
+          var allowed = host === 'xhslink.cn' || host.endsWith('.xhslink.cn') ||
+            host === 'xiaohongshu.com' || host.endsWith('.xiaohongshu.com') ||
+            host === 'xhs.cn' || host.endsWith('.xhs.cn');
+          return url.protocol === 'https:' && allowed ? url.href : '';
+        } catch (_) {
+          return '';
+        }
+      }
+      function docsFrom(result) {
+        if (!result) return [];
+        if (Array.isArray(result)) return result;
+        if (Array.isArray(result.data)) return result.data;
+        if (result.data && typeof result.data === 'object') return [result.data];
+        if (Array.isArray(result.docs)) return result.docs;
+        if (result.docs && typeof result.docs === 'object') return Object.values(result.docs);
+        return [];
+      }
+      async function fetchEventDocs(id) {
+        var result = await db.collection(COLLECTION)
+          .where({ eventId: id })
+          .limit(EVENT_PAGE_SIZE)
+          .get();
+        return docsFrom(result);
+      }
+
+      async function connect() {
+        if (db) return db;
+        if (!window.cloudbase) throw new Error('CloudBase 组件加载失败，请检查网络后刷新');
+        app = window.cloudbase.init({ env: ENV_ID, region: REGION });
+        var auth = typeof app.auth === 'function' ? app.auth() : app.auth;
+        if (!auth) throw new Error('匿名登录组件不可用');
+        var state = null;
+        if (typeof auth.getLoginState === 'function') {
+          try { state = await auth.getLoginState(); } catch (_) { state = null; }
+        }
+        if (!state) {
+          if (typeof auth.anonymousAuthProvider === 'function') {
+            await auth.anonymousAuthProvider().signIn();
+          } else if (typeof auth.signInAnonymously === 'function') {
+            await auth.signInAnonymously();
+          } else {
+            throw new Error('当前组件不支持匿名登录');
+          }
+        }
+        db = typeof app.database === 'function' ? app.database() : app.database;
+        if (!db || !db.collection) throw new Error('云数据库连接失败');
+        return db;
+      }
+
+      async function loadActivity(id) {
+        await connect();
+        var configs = (await fetchEventDocs(id)).filter(function (item) {
+          return item && item.kind === 'activity';
+        });
+        configs.sort(function (a, b) { return Number(b.createdAt || 0) - Number(a.createdAt || 0); });
+        if (!configs.length) throw new Error('没有找到本次活动配置');
+        var config = configs[0];
+        config.target = safeXhsUrl(config.target) || DEFAULT_TARGET;
+        config.speech = String(config.speech || DEFAULT_SPEECH);
+        config.ttsSpeech = String(config.ttsSpeech || config.speech || DEFAULT_TTS_SPEECH);
+        config.audioFile = config.audioFile === AUDIO_FILE ? AUDIO_FILE : '';
+        return config;
+      }
+
+      function loadQrScript(source) {
+        return new Promise(function (resolve, reject) {
+          var script = document.createElement('script');
+          script.src = source;
+          script.async = true;
+          script.onload = function () {
+            if (window.QRCode) resolve();
+            else reject(new Error('二维码组件未初始化'));
+          };
+          script.onerror = function () { reject(new Error('二维码组件加载失败')); };
+          document.head.appendChild(script);
+        });
+      }
+      async function ensureQr() {
+        if (window.QRCode) return;
+        var lastError = null;
+        for (var i = 0; i < QR_SOURCES.length; i += 1) {
+          try {
+            await loadQrScript(QR_SOURCES[i]);
+            return;
+          } catch (error) {
+            lastError = error;
+          }
+        }
+        throw lastError || new Error('二维码组件加载失败');
+      }
+      async function makeQr(containerId, text, size) {
+        await ensureQr();
+        var box = byId(containerId);
+        box.innerHTML = '';
+        new window.QRCode(box, {
+          text: text,
+          width: size || 280,
+          height: size || 280,
+          colorDark: '#17202a',
+          colorLight: '#ffffff',
+          correctLevel: window.QRCode.CorrectLevel.M
+        });
+      }
+      async function copyText(text, button) {
+        try {
+          await navigator.clipboard.writeText(text);
+          var old = button.textContent;
+          button.textContent = '已复制';
+          setTimeout(function () { button.textContent = old; }, 1300);
+        } catch (_) {
+          window.prompt('复制下面的链接：', text);
+        }
+      }
+
+      function renderActivity(activity) {
+        activeConfig = activity;
+        var pairUrl = modeUrl('pair', activity.eventId);
+        var posterUrl = modeUrl('poster', activity.eventId);
+        var scanUrl = modeUrl('scan', activity.eventId);
+        byId('pairOpen').href = pairUrl;
+        byId('posterOpen').href = posterUrl;
+        byId('scanOpen').href = scanUrl;
+        byId('pairCopy').onclick = function () { copyText(pairUrl, byId('pairCopy')); };
+        byId('posterCopy').onclick = function () { copyText(posterUrl, byId('posterCopy')); };
+        byId('scanCopy').onclick = function () { copyText(scanUrl, byId('scanCopy')); };
+        byId('activityTag').textContent = activity.eventId.slice(-10);
+        byId('activityPanel').classList.add('show');
+        byId('activityPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      function initAdmin() {
+        show('adminPage');
+        byId('targetInput').value = DEFAULT_TARGET;
+        byId('speechInput').value = DEFAULT_SPEECH;
+        var saved = null;
+        try { saved = JSON.parse(localStorage.getItem('dadi-last-activity') || 'null'); } catch (_) { saved = null; }
+        if (saved) {
+          byId('targetInput').value = saved.target || DEFAULT_TARGET;
+          byId('speechInput').value = saved.speech || DEFAULT_SPEECH;
+        }
+        if (!isHostedRuntime()) {
+          byId('publishButton').disabled = true;
+          byId('restoreButton').disabled = true;
+          setStatus(byId('adminStatus'), '本机页面仅供看样式，不能创建真实扫码活动。请打开线上 HTTPS 活动控制台。', 'bad');
+        }
+        byId('publishButton').addEventListener('click', async function () {
+          var button = byId('publishButton');
+          var target = safeXhsUrl(byId('targetInput').value.trim());
+          var speech = byId('speechInput').value.trim();
+          if (!target) {
+            setStatus(byId('adminStatus'), '请填写有效的小红书 HTTPS 分享链接', 'bad');
+            return;
+          }
+          if (!speech) {
+            setStatus(byId('adminStatus'), '请填写播报内容', 'bad');
+            return;
+          }
+          button.disabled = true;
+          setStatus(byId('adminStatus'), '正在发布本次活动配置…');
+          var activity = {
+            kind: 'activity',
+            eventId: randomId('event'),
+            target: target,
+            speech: speech,
+            ttsSpeech: speech === DEFAULT_SPEECH ? DEFAULT_TTS_SPEECH : speech,
+            audioFile: speech === DEFAULT_SPEECH ? AUDIO_FILE : '',
+            createdAt: Date.now()
+          };
+          try {
+            await withTimeout(
+              (async function () {
+                await connect();
+                return db.collection(COLLECTION).add(activity);
+              })(),
+              WRITE_TIMEOUT_MS,
+              '云端响应超时，请检查网络后重试'
+            );
+            localStorage.setItem('dadi-last-activity', JSON.stringify(activity));
+            saved = activity;
+            renderActivity(activity);
+            setStatus(byId('adminStatus'), '活动已发布。请在现场 iPad 打开展示页，并点一次“开启并试听”。', 'ok');
+          } catch (error) {
+            setStatus(byId('adminStatus'), readableError(error, '活动发布失败，请重试'), 'bad');
+          } finally {
+            button.disabled = false;
+          }
+        });
+        byId('restoreButton').addEventListener('click', function () {
+          if (!saved || !saved.eventId) {
+            setStatus(byId('adminStatus'), '这台设备还没有保存过活动', 'bad');
+            return;
+          }
+          renderActivity(saved);
+          setStatus(byId('adminStatus'), '已恢复上次活动。云端配置保持不变。', 'ok');
+        });
+      }
+
+      async function initPair() {
+        if (!eventId) { show('errorPage'); return; }
+        show('pairPage');
+        if (!isHostedRuntime()) {
+          byId('pairQr').classList.add('hidden');
+          setStatus(byId('pairStatus'), '本机页面不会生成可误扫的配对码。请从线上 HTTPS 活动控制台打开此入口。', 'bad');
+          return;
+        }
+        try {
+          await makeQr('pairQr', modeUrl('speaker', eventId), 290);
+          setStatus(byId('pairStatus'), '扫码后，在备用播报设备上点一次“开启并试听”', 'ok');
+        } catch (error) {
+          setStatus(byId('pairStatus'), error.message || '二维码生成失败，请刷新', 'bad');
+        }
+      }
+
+      async function initPoster() {
+        if (!eventId) { show('errorPage'); return; }
+        liveSurface = 'poster';
+        show('posterPage');
+        try {
+          await makeQr('posterQr', modeUrl('scan', eventId), 320);
+          if (!isHostedRuntime()) {
+            setStatus(byId('posterQrStatus'), '本机视觉预览：此二维码不能给其他设备扫码', 'bad');
+          } else {
+            setStatus(byId('posterQrStatus'), '微信扫一扫或系统相机均可', '');
+          }
+        } catch (error) {
+          setStatus(byId('posterQrStatus'), error.message || '二维码生成失败，请刷新', 'bad');
+        }
+        byId('posterLiveStart').addEventListener('click', async function () {
+          var button = byId('posterLiveStart');
+          button.disabled = true;
+          button.textContent = '正在试听…';
+          setLiveStatus('请确认已听到“播报已开启”…');
+          var readyAttempt = playReadyCue();
+          var contextAttempt = resumeAudioContext();
+          var wakeAttempt = keepAwake();
+          if (document.documentElement.requestFullscreen) {
+            try {
+              var fullscreenResult = document.documentElement.requestFullscreen();
+              if (fullscreenResult && fullscreenResult.catch) fullscreenResult.catch(function () {});
+            } catch (_) { /* iPad 不支持网页全屏时继续使用普通展示 */ }
+          }
+          try {
+            await readyAttempt;
+            await Promise.all([wakeAttempt, contextAttempt]);
+            prepareAnnouncementAudio(AUDIO_FILE);
+            button.textContent = '正在连接…';
+            setLiveStatus('启动提示正常，正在连接扫码监听…');
+            await connectSpeaker(false);
+          } catch (error) {
+            button.disabled = false;
+            button.textContent = '重新开启并试听';
+            setLiveStatus(readableError(error, '没有听到启动提示，请检查音量后重试'), 'bad');
+          }
+        });
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'visible' && speakerStarted) {
+            keepAwake();
+            syncCurrentScans();
+          }
+        });
+        window.addEventListener('beforeunload', closeSpeakerConnections);
+      }
+
+      async function keepAwake() {
+        try {
+          if (!('wakeLock' in navigator)) return;
+          if (wakeLock && !wakeLock.released) return;
+          var nextWakeLock = await navigator.wakeLock.request('screen');
+          wakeLock = nextWakeLock;
+          if (nextWakeLock && nextWakeLock.addEventListener) {
+            nextWakeLock.addEventListener('release', function () {
+              if (wakeLock === nextWakeLock) wakeLock = null;
+            });
+          }
+        } catch (_) {
+          wakeLock = null;
+        }
+      }
+      function resumeAudioContext() {
+        if (!(window.AudioContext || window.webkitAudioContext)) return Promise.resolve();
+        try {
+          var Context = window.AudioContext || window.webkitAudioContext;
+          if (!audioContext) audioContext = new Context();
+          return audioContext.resume().catch(function () {});
+        } catch (_) {
+          return Promise.resolve();
+        }
+      }
+      function prepareAnnouncementAudio(filename) {
+        var audio = byId('announcementAudio');
+        if (filename !== AUDIO_FILE) return null;
+        var nextUrl = new URL(filename, baseUrl()).href;
+        if (configuredAudioFile !== filename || audio.src !== nextUrl) {
+          audio.pause();
+          audio.src = nextUrl;
+          audio.load();
+          configuredAudioFile = filename;
+        }
+        return audio;
+      }
+      function playReadyCue() {
+        return new Promise(function (resolve, reject) {
+          var audio = byId('announcementAudio');
+          var settled = false;
+          var timer = null;
+          function cleanup() {
+            audio.removeEventListener('ended', onEnded);
+            audio.removeEventListener('error', onError);
+            if (timer) clearTimeout(timer);
+          }
+          function finish(callback, value) {
+            if (settled) return;
+            settled = true;
+            cleanup();
+            callback(value);
+          }
+          function onEnded() { finish(resolve); }
+          function onError() { finish(reject, new Error('启动提示加载失败，请检查网络后重试')); }
+          audio.addEventListener('ended', onEnded);
+          audio.addEventListener('error', onError);
+          audio.pause();
+          audio.src = new URL(READY_AUDIO_FILE, baseUrl()).href;
+          audio.load();
+          configuredAudioFile = READY_AUDIO_FILE;
+          audio.currentTime = 0;
+          audio.volume = 1;
+          timer = setTimeout(function () {
+            finish(reject, new Error('没有听到启动提示，请关闭静音并调高音量后重试'));
+          }, 8000);
+          try {
+            var playResult = audio.play();
+            if (playResult && playResult.catch) {
+              playResult.catch(function () {
+                finish(reject, new Error('浏览器没有允许声音播放，请再点一次开启'));
+              });
+            }
+          } catch (_) {
+            finish(reject, new Error('浏览器没有允许声音播放，请再点一次开启'));
+          }
+        });
+      }
+      function playFixedAudio(filename) {
+        return new Promise(function (resolve, reject) {
+          var audio = prepareAnnouncementAudio(filename);
+          if (!audio) {
+            reject(new Error('固定音频配置无效'));
+            return;
+          }
+          var settled = false;
+          var timer = null;
+          function cleanup() {
+            audio.removeEventListener('ended', onEnded);
+            audio.removeEventListener('error', onError);
+            if (timer) clearTimeout(timer);
+          }
+          function finish(callback, value) {
+            if (settled) return;
+            settled = true;
+            cleanup();
+            callback(value);
+          }
+          function onEnded() { finish(resolve); }
+          function onError() { finish(reject, new Error('固定音频加载失败')); }
+          audio.addEventListener('ended', onEnded);
+          audio.addEventListener('error', onError);
+          audio.currentTime = 0;
+          audio.volume = 1;
+          timer = setTimeout(function () {
+            finish(reject, new Error('固定音频播放超时'));
+          }, 22000);
+          try {
+            var playResult = audio.play();
+            if (playResult && playResult.catch) {
+              playResult.catch(function (error) {
+                finish(reject, error || new Error('固定音频播放失败'));
+              });
+            }
+          } catch (error) {
+            finish(reject, error || new Error('固定音频播放失败'));
+          }
+        });
+      }
+      function speakText(text) {
+        return new Promise(function (resolve, reject) {
+          if (!('speechSynthesis' in window)) {
+            reject(new Error('当前浏览器不支持中文语音'));
+            return;
+          }
+          var utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'zh-CN';
+          utterance.rate = .95;
+          utterance.pitch = 1.01;
+          utterance.volume = 1;
+          var voices = speechSynthesis.getVoices();
+          var voice = voices.find(function (item) { return /^zh(-|_)/i.test(item.lang); });
+          if (voice) utterance.voice = voice;
+          utterance.onend = function () { resolve(); };
+          utterance.onerror = function (event) { reject(new Error(event.error || '系统语音播放失败')); };
+          speechSynthesis.speak(utterance);
+        });
+      }
+      async function playAnnouncement(isTest) {
+        var config = activeConfig || {};
+        var played = false;
+        if (config.audioFile && fixedAudioAvailable) {
+          try {
+            await playFixedAudio(config.audioFile);
+            played = true;
+          } catch (_) {
+            fixedAudioAvailable = false;
+          }
+        }
+        if (!played) await speakText(config.ttsSpeech || config.speech || DEFAULT_TTS_SPEECH);
+        if (!isTest) {
+          spoken += 1;
+          refreshLiveCounts();
+        }
+      }
+      async function processQueue() {
+        if (queueBusy) return;
+        queueBusy = true;
+        while (audioQueue.length) {
+          var item = audioQueue.shift();
+          setLiveStatus(
+            item.isTest ? '正在试听…' : '收到扫码，正在播报…',
+            'ok'
+          );
+          try {
+            await playAnnouncement(item.isTest);
+            setLiveStatus(
+              liveSurface === 'poster' ? '二维码保持展示，扫码会在本页自动播报' : '实时监听中',
+              'ok'
+            );
+          } catch (error) {
+            setLiveStatus(error.message || '播报失败，请检查音量', 'bad');
+          }
+        }
+        queueBusy = false;
+      }
+      function enqueueAnnouncement(isTest) {
+        audioQueue.push({ isTest: Boolean(isTest) });
+        if (!isTest) {
+          received += 1;
+          refreshLiveCounts();
+        }
+        processQueue();
+      }
+      function scanDocsFromSnapshot(snapshot) {
+        return docsFrom(snapshot).filter(function (item) {
+          return item && item.kind === 'scan' && item.eventId === eventId;
+        });
+      }
+      function scanDocId(doc) {
+        return doc && (doc._id || doc.nonce || String(doc.createdAt || ''));
+      }
+      function markListenerReady() {
+        setLivePulse(true);
+        setLiveStatus(
+          liveSurface === 'poster' ? '二维码保持展示，扫码会在本页自动播报' : '实时监听中',
+          'ok'
+        );
+        if (liveSurface === 'poster') byId('posterSetup').classList.add('hidden');
+      }
+      function processSnapshot(snapshot) {
+        var scans = scanDocsFromSnapshot(snapshot);
+        scans.sort(function (a, b) { return Number(a.createdAt || 0) - Number(b.createdAt || 0); });
+        if (!baselineReady) {
+          scans.forEach(function (doc) {
+            var id = scanDocId(doc);
+            if (!id || seenDocs.has(id)) return;
+            seenDocs.add(id);
+          });
+          baselineReady = true;
+          if (watchBaselineTimer) clearTimeout(watchBaselineTimer);
+          watchBaselineTimer = null;
+          markListenerReady();
+          return;
+        }
+        scans.forEach(function (doc) {
+          var id = scanDocId(doc);
+          if (!id || seenDocs.has(id)) return;
+          seenDocs.add(id);
+          enqueueAnnouncement(false);
+        });
+      }
+      async function startPolling(preserveBaseline) {
+        if (pollTimer) clearInterval(pollTimer);
+        if (catchupTimer) clearInterval(catchupTimer);
+        catchupTimer = null;
+        if (watchBaselineTimer) clearTimeout(watchBaselineTimer);
+        watchBaselineTimer = null;
+        baselineReady = Boolean(preserveBaseline);
+        async function poll() {
+          if (pollInFlight) return;
+          pollInFlight = true;
+          try {
+            processSnapshot(await fetchEventDocs(eventId));
+            if (baselineReady) {
+              setLiveStatus(
+                liveSurface === 'poster'
+                  ? '二维码保持展示，扫码会在本页自动播报（兼容模式）'
+                  : '实时监听中（兼容模式）',
+                'ok'
+              );
+            }
+          } catch (error) {
+            setLiveStatus(
+              liveSurface === 'poster' ? '连接中断，请重新点击开启现场播报' : '连接中断，请点“重新连接”',
+              'bad'
+            );
+          } finally {
+            pollInFlight = false;
+          }
+        }
+        await poll();
+        pollTimer = setInterval(poll, 1800);
+      }
+      function startWatch() {
+        var preserveBaseline = arguments.length > 0 && Boolean(arguments[0]);
+        baselineReady = preserveBaseline;
+        watchDelivered = false;
+        watcher = db.collection(COLLECTION).where({ eventId: eventId }).watch({
+          onChange: function (snapshot) {
+            watchDelivered = true;
+            if (watchBaselineTimer) clearTimeout(watchBaselineTimer);
+            watchBaselineTimer = null;
+            processSnapshot(snapshot);
+          },
+          onError: function () {
+            var keepBaseline = baselineReady;
+            if (watcher && watcher.close) watcher.close();
+            watcher = null;
+            startPolling(keepBaseline);
+          }
+        });
+        if (watchBaselineTimer) clearTimeout(watchBaselineTimer);
+        watchBaselineTimer = setTimeout(function () {
+          if (watchDelivered) return;
+          if (watcher && watcher.close) watcher.close();
+          watcher = null;
+          startPolling(baselineReady);
+        }, 5500);
+      }
+      function startCatchupChecks() {
+        if (catchupTimer) clearInterval(catchupTimer);
+        catchupTimer = setInterval(syncCurrentScans, CATCHUP_INTERVAL_MS);
+      }
+      async function syncCurrentScans() {
+        if (!speakerStarted || !db || syncInFlight) return;
+        syncInFlight = true;
+        try {
+          processSnapshot(await fetchEventDocs(eventId));
+          if (!watcher && !pollTimer) startPolling(true);
+        } catch (_) {
+          if (!watcher && !pollTimer) startPolling(true);
+        } finally {
+          syncInFlight = false;
+        }
+      }
+      function closeSpeakerConnections() {
+        if (watcher && watcher.close) watcher.close();
+        watcher = null;
+        watchDelivered = false;
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = null;
+        if (catchupTimer) clearInterval(catchupTimer);
+        catchupTimer = null;
+        syncInFlight = false;
+        pollInFlight = false;
+        if (watchBaselineTimer) clearTimeout(watchBaselineTimer);
+        watchBaselineTimer = null;
+      }
+      async function connectSpeaker(preserveBaseline) {
+        var keepBaseline = Boolean(preserveBaseline && speakerStarted);
+        closeSpeakerConnections();
+        if (!keepBaseline) seenDocs = new Set();
+        baselineReady = keepBaseline;
+        setLiveStatus('正在连接活动…');
+        activeConfig = await withTimeout(loadActivity(eventId), CONFIG_TIMEOUT_MS, '活动配置加载超时');
+        speakerStarted = true;
+        startWatch(baselineReady);
+        startCatchupChecks();
+        await keepAwake();
+        refreshLiveCounts();
+        if (keepBaseline) markListenerReady();
+        if (liveSurface === 'poster') {
+          byId('posterOnlineDot').classList.add('pulse');
+        } else {
+          byId('speakerTitle').textContent = '等待高手扫码';
+          byId('speakerText').textContent = '保持页面在前台。多个扫码会排队播报，不会互相覆盖。';
+          byId('speakerStart').classList.add('hidden');
+          byId('speakerSubActions').classList.remove('hidden');
+          byId('speakerCounters').classList.remove('hidden');
+        }
+      }
+      function initSpeaker() {
+        if (!eventId) { show('errorPage'); return; }
+        liveSurface = 'speaker';
+        show('speakerPage');
+        if (!isHostedRuntime()) {
+          byId('speakerStart').disabled = true;
+          setStatus(byId('speakerStatus'), '本机页面不能作为真实播报台。请扫描线上 HTTPS 配对码。', 'bad');
+          return;
+        }
+        byId('speakerStart').addEventListener('click', async function () {
+          var button = byId('speakerStart');
+          button.disabled = true;
+          button.textContent = '正在试听…';
+          setLiveStatus('请确认已听到“播报已开启”…');
+          var readyAttempt = playReadyCue();
+          var contextAttempt = resumeAudioContext();
+          var wakeAttempt = keepAwake();
+          try {
+            await readyAttempt;
+            await Promise.all([wakeAttempt, contextAttempt]);
+            prepareAnnouncementAudio(AUDIO_FILE);
+            button.textContent = '正在连接…';
+            await connectSpeaker(false);
+          } catch (error) {
+            button.disabled = false;
+            button.textContent = '重新开启并试听';
+            setStatus(byId('speakerStatus'), readableError(error, '连接失败，请重试'), 'bad');
+          }
+        });
+        byId('speakerTest').addEventListener('click', function () {
+          if (!speakerStarted || !activeConfig) return;
+          enqueueAnnouncement(true);
+        });
+        byId('speakerReconnect').addEventListener('click', async function () {
+          var button = byId('speakerReconnect');
+          button.disabled = true;
+          try {
+            await connectSpeaker(true);
+          } catch (error) {
+            setStatus(byId('speakerStatus'), readableError(error, '重连失败'), 'bad');
+          } finally {
+            button.disabled = false;
+          }
+        });
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'visible' && speakerStarted) {
+            keepAwake();
+            syncCurrentScans();
+          }
+        });
+        window.addEventListener('beforeunload', closeSpeakerConnections);
+      }
+
+      function updateScanSuccess(title, message, status) {
+        byId('scanCard').classList.remove('scan-error');
+        byId('scanCard').classList.add('scan-success');
+        byId('scanIcon').textContent = '🎉';
+        byId('scanTitle').textContent = title;
+        byId('scanText').textContent = message;
+        setStatus(byId('scanStatus'), status, 'ok');
+      }
+      function updateScanError(title, message, status) {
+        byId('scanCard').classList.remove('scan-success');
+        byId('scanCard').classList.add('scan-error');
+        byId('scanIcon').textContent = '↗';
+        byId('scanTitle').textContent = title;
+        byId('scanText').textContent = message;
+        setStatus(byId('scanStatus'), status, 'bad');
+      }
+      async function initScan() {
+        if (!eventId) { show('errorPage'); return; }
+        show('scanPage');
+        if (!isHostedRuntime()) {
+          updateScanError('这是本机预览', '本机地址不能发送真实播报信号。请扫描线上活动二维码。', '请返回现场展示页重新扫码');
+          return;
+        }
+        var target = DEFAULT_TARGET;
+        var redirectTimer = null;
+        function go() {
+          if (redirectTimer) clearTimeout(redirectTimer);
+          location.replace(target);
+        }
+        byId('jumpButton').addEventListener('click', go);
+        try {
+          var config = await withTimeout(loadActivity(eventId), CONFIG_TIMEOUT_MS, '活动配置加载超时');
+          target = safeXhsUrl(config.target) || DEFAULT_TARGET;
+        } catch (_) {
+          target = DEFAULT_TARGET;
+        }
+        byId('jumpButton').classList.remove('hidden');
+        var lastKey = 'dadi-scan-' + eventId;
+        var lastScan = Number(localStorage.getItem(lastKey) || 0);
+        if (Date.now() - lastScan < SCAN_DEDUPE_MS) {
+          updateScanSuccess('刚刚已经响应', '这台手机的重复扫码已自动合并，正在前往小红书。', '无需再次播报');
+          redirectTimer = setTimeout(go, 1100);
+          return;
+        }
+        try {
+          await withTimeout(
+            (async function () {
+              await connect();
+              return db.collection(COLLECTION).add({
+                kind: 'scan',
+                eventId: eventId,
+                nonce: randomId('scan'),
+                createdAt: Date.now(),
+                source: 'qr'
+              });
+            })(),
+            WRITE_TIMEOUT_MS,
+            '播报信号确认超时'
+          );
+          localStorage.setItem(lastKey, String(Date.now()));
+          updateScanSuccess('高手已上线！', '全场播报已触发。祝你上墙有劲，下墙平安。', '信号已送达');
+          redirectTimer = setTimeout(go, 1200);
+        } catch (error) {
+          updateScanError(
+            '继续前往小红书',
+            '本次播报信号尚未确认送达，但不影响继续访问。',
+            error.message || '现场网络较慢'
+          );
+          redirectTimer = setTimeout(go, 1900);
+        }
+      }
+
+      if (location.protocol === 'file:') showFileModeError();
+      else if (mode === 'admin') initAdmin();
+      else if (mode === 'pair') initPair();
+      else if (mode === 'poster') initPoster();
+      else if (mode === 'speaker') initSpeaker();
+      else if (mode === 'scan') initScan();
+      else show('errorPage');
+    })();
+  </script>
+</body>
+</html>
