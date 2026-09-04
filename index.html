@@ -6,7 +6,6 @@
   <meta name="theme-color" content="#f34e3f">
   <meta name="description" content="大迪在面壁岩馆扫码播报工具">
   <title>大迪在面壁 · 扫码播报</title>
-  <script src="https://static.cloudbase.net/cloudbase-js-sdk/2.27.1/cloudbase.full.js"></script>
   <style>
     :root {
       color-scheme: light;
@@ -572,10 +571,9 @@
     (function () {
       'use strict';
 
-      var ENV_ID = 'dadi-climb-d6g91rnn034b36f1f';
-      var REGION = 'ap-shanghai';
-      var COLLECTION = 'scan_signals';
-      var PUBLIC_BASE_URL = 'https://scan.dadi-climb.cn/';
+      var PUBLIC_BASE_URL = 'https://dadi6666666.github.io/scan-broadcast/';
+      var NTFY_BASE_URL = 'https://ntfy.sh';
+      var NTFY_TOPIC_PREFIX = 'dadi-scan-';
       var DEFAULT_TARGET = 'https://xhslink.cn/m/6WxO9KMNJQM';
       var DEFAULT_SPEECH = '感谢大佬关注“大迪在面壁”！愿大佬动作有逻辑，发力讲科学；上墙有劲，下墙平安，V6酷酷拿下，难线统统不怕！';
       var DEFAULT_TTS_SPEECH = '感谢大佬，关注大迪在面壁！愿大佬，动作有逻辑，发力讲科学；上墙有劲，下墙平安！V六，酷酷拿下；难线，统统不怕！';
@@ -589,15 +587,12 @@
       var SCAN_DEDUPE_MS = 3500;
       var CONFIG_TIMEOUT_MS = 4200;
       var WRITE_TIMEOUT_MS = 4800;
-      var EVENT_PAGE_SIZE = 1000;
       var CATCHUP_INTERVAL_MS = 8000;
 
       var params = new URLSearchParams(location.search);
       var mode = params.get('mode') || 'admin';
       if (mode === 'listen') mode = 'speaker';
       var eventId = params.get('event') || '';
-      var app = null;
-      var db = null;
       var activeConfig = null;
       var watcher = null;
       var pollTimer = null;
@@ -629,7 +624,7 @@
       function readableError(error, fallback) {
         var message = String(error && error.message || error || '');
         if (/network request error|failed to fetch|networkerror|cors/i.test(message)) {
-          return '当前网页地址尚未加入云端安全来源：' + location.host + '。请改用正式网址，或先放行这个测试地址。';
+          return '现场网络暂时无法连接播报服务，请检查网络后重试。';
         }
         return message || fallback || '操作失败，请重试';
       }
@@ -643,7 +638,7 @@
         byId('errorIcon').textContent = '↗';
         byId('errorEyebrow').textContent = '打开方式不正确';
         byId('errorTitle').textContent = '不要直接打开 index.html';
-        byId('errorText').textContent = '本地文件没有可用的网站来源，无法创建活动或连接云数据库。请通过网页地址运行。';
+        byId('errorText').textContent = '本地文件没有可用的网站来源，无法创建活动或连接播报服务。请通过网页地址运行。';
         var action = byId('errorAction');
         action.href = PUBLIC_BASE_URL;
         action.textContent = '打开线上活动控制台';
@@ -705,47 +700,94 @@
       }
       function docsFrom(result) {
         if (!result) return [];
-        if (Array.isArray(result)) return result;
-        if (Array.isArray(result.data)) return result.data;
-        if (result.data && typeof result.data === 'object') return [result.data];
-        if (Array.isArray(result.docs)) return result.docs;
-        if (result.docs && typeof result.docs === 'object') return Object.values(result.docs);
-        return [];
+        return Array.isArray(result) ? result : [result];
+      }
+      function topicFor(id) {
+        var normalized = String(id || '').trim();
+        if (!/^event-[a-z0-9-]{12,80}$/i.test(normalized)) throw new Error('活动编号无效');
+        return NTFY_TOPIC_PREFIX + normalized.toLowerCase();
+      }
+      function ntfyUrl(id, format, query) {
+        var url = new URL('/' + encodeURIComponent(topicFor(id)) + '/' + format, NTFY_BASE_URL);
+        Object.keys(query || {}).forEach(function (key) {
+          url.searchParams.set(key, query[key]);
+        });
+        return url.href;
+      }
+      async function fetchWithTimeout(url, options, ms, message) {
+        var controller = typeof AbortController === 'function' ? new AbortController() : null;
+        var timer = setTimeout(function () {
+          if (controller) controller.abort();
+        }, ms);
+        var requestOptions = Object.assign({}, options || {});
+        if (controller) requestOptions.signal = controller.signal;
+        try {
+          return await fetch(url, requestOptions);
+        } catch (error) {
+          if (error && error.name === 'AbortError') throw new Error(message || '网络请求超时');
+          throw error;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+      function parseNtfyPayload(envelope, id) {
+        if (!envelope || envelope.event && envelope.event !== 'message') return null;
+        if (typeof envelope.message !== 'string' || !envelope.message.trim()) return null;
+        var payload = null;
+        try { payload = JSON.parse(envelope.message); } catch (_) { return null; }
+        if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return null;
+        if (payload.eventId !== id || (payload.kind !== 'activity' && payload.kind !== 'scan')) return null;
+        var createdAt = Number(payload.createdAt);
+        if (!Number.isFinite(createdAt) || createdAt <= 0) return null;
+        payload.createdAt = createdAt;
+        payload._id = String(envelope.id || payload.nonce || (payload.kind + '-' + createdAt));
+        return payload;
+      }
+      function parseNtfyHistory(text, id) {
+        return String(text || '').split(/\r?\n/).reduce(function (items, line) {
+          if (!line.trim()) return items;
+          var envelope = null;
+          try { envelope = JSON.parse(line); } catch (_) { return items; }
+          var payload = parseNtfyPayload(envelope, id);
+          if (payload) items.push(payload);
+          return items;
+        }, []);
       }
       async function fetchEventDocs(id) {
-        var result = await db.collection(COLLECTION)
-          .where({ eventId: id })
-          .limit(EVENT_PAGE_SIZE)
-          .get();
-        return docsFrom(result);
+        var response = await fetchWithTimeout(
+          ntfyUrl(id, 'json', { poll: '1', since: 'all' }),
+          { method: 'GET', cache: 'no-store', headers: { Accept: 'application/x-ndjson, application/json' } },
+          CONFIG_TIMEOUT_MS,
+          '活动信息加载超时'
+        );
+        if (!response.ok) throw new Error('播报服务暂时不可用（' + response.status + '）');
+        return parseNtfyHistory(await response.text(), id);
       }
-
-      async function connect() {
-        if (db) return db;
-        if (!window.cloudbase) throw new Error('CloudBase 组件加载失败，请检查网络后刷新');
-        app = window.cloudbase.init({ env: ENV_ID, region: REGION });
-        var auth = typeof app.auth === 'function' ? app.auth() : app.auth;
-        if (!auth) throw new Error('匿名登录组件不可用');
-        var state = null;
-        if (typeof auth.getLoginState === 'function') {
-          try { state = await auth.getLoginState(); } catch (_) { state = null; }
-        }
-        if (!state) {
-          if (typeof auth.anonymousAuthProvider === 'function') {
-            await auth.anonymousAuthProvider().signIn();
-          } else if (typeof auth.signInAnonymously === 'function') {
-            await auth.signInAnonymously();
-          } else {
-            throw new Error('当前组件不支持匿名登录');
-          }
-        }
-        db = typeof app.database === 'function' ? app.database() : app.database;
-        if (!db || !db.collection) throw new Error('云数据库连接失败');
-        return db;
+      async function publishEvent(payload) {
+        var message = JSON.stringify(payload);
+        if (message.length > 3500) throw new Error('播报内容过长，请精简后重试');
+        var response = await fetchWithTimeout(
+          NTFY_BASE_URL + '/',
+          {
+            method: 'POST',
+            cache: 'no-store',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({
+              topic: topicFor(payload.eventId),
+              message: message
+            })
+          },
+          WRITE_TIMEOUT_MS,
+          payload.kind === 'scan' ? '播报信号确认超时' : '活动发布超时'
+        );
+        if (!response.ok) throw new Error('播报服务暂时不可用（' + response.status + '）');
+        var result = null;
+        try { result = await response.json(); } catch (_) { result = null; }
+        if (!result || result.event !== 'message' || !result.id) throw new Error('播报服务返回异常，请重试');
+        return result;
       }
 
       async function loadActivity(id) {
-        await connect();
         var configs = (await fetchEventDocs(id)).filter(function (item) {
           return item && item.kind === 'activity';
         });
@@ -864,14 +906,7 @@
             createdAt: Date.now()
           };
           try {
-            await withTimeout(
-              (async function () {
-                await connect();
-                return db.collection(COLLECTION).add(activity);
-              })(),
-              WRITE_TIMEOUT_MS,
-              '云端响应超时，请检查网络后重试'
-            );
+            await publishEvent(activity);
             localStorage.setItem('dadi-last-activity', JSON.stringify(activity));
             saved = activity;
             renderActivity(activity);
@@ -1216,20 +1251,43 @@
         var preserveBaseline = arguments.length > 0 && Boolean(arguments[0]);
         baselineReady = preserveBaseline;
         watchDelivered = false;
-        watcher = db.collection(COLLECTION).where({ eventId: eventId }).watch({
-          onChange: function (snapshot) {
-            watchDelivered = true;
-            if (watchBaselineTimer) clearTimeout(watchBaselineTimer);
-            watchBaselineTimer = null;
-            processSnapshot(snapshot);
-          },
-          onError: function () {
-            var keepBaseline = baselineReady;
-            if (watcher && watcher.close) watcher.close();
-            watcher = null;
-            startPolling(keepBaseline);
-          }
-        });
+        if (!window.EventSource) {
+          startPolling(baselineReady);
+          return;
+        }
+        var source = null;
+        try {
+          source = new EventSource(ntfyUrl(eventId, 'sse', { since: '10s' }));
+          watcher = source;
+        } catch (_) {
+          watcher = null;
+          startPolling(baselineReady);
+          return;
+        }
+        source.onopen = function () {
+          if (watcher !== source) return;
+          watchDelivered = true;
+          if (watchBaselineTimer) clearTimeout(watchBaselineTimer);
+          watchBaselineTimer = null;
+          markListenerReady();
+        };
+        source.onmessage = function (messageEvent) {
+          if (watcher !== source) return;
+          watchDelivered = true;
+          if (watchBaselineTimer) clearTimeout(watchBaselineTimer);
+          watchBaselineTimer = null;
+          var envelope = null;
+          try { envelope = JSON.parse(messageEvent.data); } catch (_) { return; }
+          var payload = parseNtfyPayload(envelope, eventId);
+          if (payload) processSnapshot([payload]);
+        };
+        source.onerror = function () {
+          if (watcher !== source) return;
+          var keepBaseline = baselineReady;
+          source.close();
+          watcher = null;
+          startPolling(keepBaseline);
+        };
         if (watchBaselineTimer) clearTimeout(watchBaselineTimer);
         watchBaselineTimer = setTimeout(function () {
           if (watchDelivered) return;
@@ -1243,7 +1301,7 @@
         catchupTimer = setInterval(syncCurrentScans, CATCHUP_INTERVAL_MS);
       }
       async function syncCurrentScans() {
-        if (!speakerStarted || !db || syncInFlight) return;
+        if (!speakerStarted || syncInFlight) return;
         syncInFlight = true;
         try {
           processSnapshot(await fetchEventDocs(eventId));
@@ -1274,12 +1332,14 @@
         baselineReady = keepBaseline;
         setLiveStatus('正在连接活动…');
         activeConfig = await withTimeout(loadActivity(eventId), CONFIG_TIMEOUT_MS, '活动配置加载超时');
+        var initialDocs = keepBaseline ? null : await fetchEventDocs(eventId);
         speakerStarted = true;
-        startWatch(baselineReady);
+        if (initialDocs) processSnapshot(initialDocs);
+        else markListenerReady();
+        startWatch(true);
         startCatchupChecks();
         await keepAwake();
         refreshLiveCounts();
-        if (keepBaseline) markListenerReady();
         if (liveSurface === 'poster') {
           byId('posterOnlineDot').classList.add('pulse');
         } else {
@@ -1388,20 +1448,13 @@
           return;
         }
         try {
-          await withTimeout(
-            (async function () {
-              await connect();
-              return db.collection(COLLECTION).add({
-                kind: 'scan',
-                eventId: eventId,
-                nonce: randomId('scan'),
-                createdAt: Date.now(),
-                source: 'qr'
-              });
-            })(),
-            WRITE_TIMEOUT_MS,
-            '播报信号确认超时'
-          );
+          await publishEvent({
+            kind: 'scan',
+            eventId: eventId,
+            nonce: randomId('scan'),
+            createdAt: Date.now(),
+            source: 'qr'
+          });
           localStorage.setItem(lastKey, String(Date.now()));
           updateScanSuccess('高手已上线！', '全场播报已触发。祝你上墙有劲，下墙平安。', '信号已送达');
           redirectTimer = setTimeout(go, 1200);

@@ -4,9 +4,9 @@
 
 ## 正式入口
 
-- 管理与展示入口：<https://scan.dadi-climb.cn/>
-- CloudBase 环境：`dadi-climb-d6g91rnn034b36f1f`
-- 数据库集合：`scan_signals`
+- 立即可用入口：<https://dadi6666666.github.io/scan-broadcast/>
+- 正式域名（DNS 完成后启用）：<https://scan.dadi-climb.cn/>
+- 实时信号：ntfy 匿名高熵活动频道
 
 ## 文件
 
