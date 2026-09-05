@@ -375,36 +375,36 @@
     .poster-copy {
       grid-column: 1;
       align-self: center;
-      max-width: 620px;
-      padding: 22px 0 30px;
+      max-width: 650px;
+      padding: 18px 0 28px;
     }
     .poster-hook {
-      margin: 0 0 20px;
+      margin: 0 0 18px;
       color: #e8542a;
-      font-size: clamp(23px, 2.7vw, 30px);
-      line-height: 1.2;
+      font-size: clamp(32px, 3.6vw, 38px);
+      line-height: 1.12;
       font-weight: 850;
-      letter-spacing: -.025em;
+      letter-spacing: -.03em;
       white-space: nowrap;
     }
     .poster-headline {
       margin: 0;
       color: #17191e;
       font-size: clamp(58px, 6.25vw, 66px);
-      line-height: .96;
+      line-height: 1;
       letter-spacing: -.06em;
       font-weight: 780;
-      white-space: normal;
+      white-space: nowrap;
     }
-    .poster-headline span { display: block; }
-    .poster-headline span + span { margin-top: 7px; }
+    .poster-headline span { display: inline; }
+    .poster-headline span + span { margin: 0; }
     .poster-principle {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin: 27px 0 0;
+      margin: 28px 0 0;
       color: #2655b5;
-      font-size: clamp(14px, 1.5vw, 16px);
+      font-size: clamp(15px, 1.55vw, 17px);
       line-height: 1.45;
       font-weight: 750;
       letter-spacing: .01em;
@@ -421,41 +421,46 @@
       grid-column: 1;
       display: grid;
       grid-template-columns: auto minmax(150px, 1fr);
-      align-items: end;
-      gap: clamp(26px, 3vw, 34px);
-      width: min(100%, 600px);
+      align-items: stretch;
+      gap: clamp(30px, 3.2vw, 36px);
+      width: min(100%, 620px);
+      padding-top: 35px;
+      transform: translateY(-48px);
     }
     .poster-qr-wrap { position: relative; }
     .poster-qr-label {
-      min-height: 23px;
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
+      gap: 10px;
+      min-height: 0;
+      margin: 0;
       color: #17191e;
       white-space: nowrap;
     }
     .poster-xhs-badge {
-      padding: 4px 8px;
-      border-radius: 3px;
+      padding: 6px 9px;
+      border-radius: 4px;
       color: #fff;
       background: #ff2442;
-      font-size: 12px;
+      font-size: 15px;
       line-height: 1;
       font-weight: 850;
       letter-spacing: .04em;
     }
     .poster-xhs-handle {
-      font-size: 16px;
+      font-size: clamp(28px, 3.1vw, 34px);
       line-height: 1;
-      font-weight: 800;
-      letter-spacing: -.01em;
+      font-weight: 850;
+      letter-spacing: -.025em;
     }
-    .poster-qr-arrow {
-      color: #ff2442;
-      font-size: 17px;
+    .poster-follow-cue {
+      margin-top: 18px;
+      color: #e8542a;
+      font-size: clamp(16px, 1.75vw, 19px);
       line-height: 1;
-      font-weight: 900;
+      font-weight: 850;
+      letter-spacing: .025em;
+      white-space: nowrap;
     }
     .poster .qr-box {
       width: clamp(258px, 26vw, 286px);
@@ -467,8 +472,11 @@
       box-shadow: 9px 10px 0 rgba(38,85,181,.16);
     }
     .poster-meta {
-      align-self: end;
-      padding-bottom: 5px;
+      align-self: stretch;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 2px 0 16px;
       color: rgba(23,25,30,.52);
     }
     .poster-meta p {
@@ -479,6 +487,7 @@
       letter-spacing: .035em;
       white-space: nowrap;
     }
+    .poster-meta > p:first-of-type { margin-top: auto; }
     .poster-meta .poster-ai {
       margin-top: 5px;
       color: rgba(23,25,30,.42);
@@ -552,10 +561,16 @@
 
     @media (orientation: landscape) and (max-height: 700px) {
       .poster { padding: 34px 46px; }
-      .poster-copy { padding: 24px 0 32px; }
+      .poster-copy { padding: 14px 0 22px; }
       .poster-headline { font-size: 52px; }
-      .poster-hook { margin-bottom: 16px; font-size: 23px; }
+      .poster-hook { margin-bottom: 14px; font-size: 30px; }
+      .poster-principle { margin-top: 20px; font-size: 14px; }
+      .poster-action { gap: 28px; width: 560px; transform: translateY(-24px); }
       .poster .qr-box { width: 226px; }
+      .poster-meta { padding-bottom: 8px; }
+      .poster-xhs-badge { font-size: 12px; }
+      .poster-xhs-handle { font-size: 23px; }
+      .poster-follow-cue { margin-top: 14px; font-size: 15px; }
       .poster-caption { right: 30px; bottom: 26px; }
     }
 
@@ -583,12 +598,17 @@
         max-width: 540px;
         padding: 210px 0 44px;
       }
+      .poster-hook { margin-bottom: 16px; font-size: 32px; }
       .poster-headline {
-        font-size: clamp(46px, 8.3vw, 64px);
-        white-space: normal;
+        font-size: clamp(46px, 7.2vw, 56px);
+        line-height: 1;
+        white-space: nowrap;
       }
+      .poster-headline span { display: inline; }
+      .poster-headline span + span { margin: 0; }
       .poster-principle { white-space: normal; }
-      .poster-action { width: min(100%, 540px); }
+      .poster-action { width: min(100%, 540px); gap: 28px; transform: translateY(-36px); }
+      .poster-xhs-handle { font-size: 23px; }
       .poster-caption { display: none; }
     }
 
@@ -600,16 +620,41 @@
       }
       .poster-top { flex-wrap: wrap; }
       .poster-copy { padding: 210px 0 38px; }
-      .poster-headline { font-size: 44px; white-space: normal; }
+      .poster-hook {
+        margin-bottom: 18px;
+        font-size: 26px;
+        line-height: 1.18;
+        white-space: normal;
+      }
+      .poster-headline { font-size: 44px; line-height: .98; white-space: normal; }
+      .poster-headline span { display: block; }
+      .poster-headline span + span { margin-top: 4px; }
       .poster-principle { white-space: normal; }
       .poster-action {
         grid-template-columns: minmax(178px, 210px) 1fr;
         gap: 20px;
+        width: 100%;
+        padding-top: 32px;
+        transform: none;
       }
       .poster .qr-box { width: 100%; }
+      .poster-meta { padding: 2px 0 10px; }
+      .poster-qr-label {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 7px;
+        white-space: normal;
+      }
+      .poster-xhs-badge { padding: 5px 7px; font-size: 11px; }
+      .poster-xhs-handle { font-size: 18px; line-height: 1.15; white-space: nowrap; }
+      .poster-follow-cue { margin-top: 12px; font-size: 13px; }
       .poster-meta p { font-size: 10px; white-space: normal; }
       .poster-meta .poster-ai { font-size: 9px; }
-      .poster-meta strong { font-size: 19px; }
+    }
+
+    @media (max-width: 360px) {
+      .poster-action { grid-template-columns: 178px minmax(0, 1fr); gap: 14px; }
+      .poster-xhs-handle { font-size: 16px; }
     }
   </style>
 </head>
@@ -731,21 +776,20 @@
       <div class="poster-copy">
         <p class="poster-hook">大佬辛苦了，来块巧克力吧。</p>
         <h2 class="poster-headline">
-          <span>重力那边，</span>
-          <span>我聊过了。</span>
+          <span>重力那边，</span><span>我聊过了。</span>
         </h2>
         <p class="poster-principle">墙上没有玄学，只有还没讲明白的道理。</p>
       </div>
       <div class="poster-action">
         <div class="poster-qr-wrap">
-          <div class="poster-qr-label" aria-label="小红书账号：大迪在面壁">
-            <span class="poster-xhs-badge">小红书</span>
-            <span class="poster-xhs-handle">@大迪在面壁</span>
-            <span class="poster-qr-arrow" aria-hidden="true">↓</span>
-          </div>
           <div id="posterQr" class="qr-box"></div>
         </div>
-        <div class="poster-meta">
+        <div class="poster-meta" aria-label="小红书账号：大迪在面壁，扫码关注">
+          <div class="poster-qr-label">
+            <span class="poster-xhs-badge">小红书</span>
+            <span class="poster-xhs-handle">大迪在面壁</span>
+          </div>
+          <div class="poster-follow-cue" aria-hidden="true">← 扫码关注</div>
           <p>攀岩技术动画 · 每周更新</p>
           <p class="poster-ai">对话 AI 制作</p>
           <div id="posterOnlineChip" class="online-chip">
@@ -809,7 +853,7 @@
       'use strict';
 
       var PUBLIC_BASE_URL = 'https://dadi6666666.github.io/scan-broadcast/';
-      var APP_VERSION = '20260906-hierarchy';
+      var APP_VERSION = '20260906-layout2';
       var NTFY_BASE_URL = 'https://ntfy.sh';
       var NTFY_TOPIC_PREFIX = 'dadi-scan-';
       var DEFAULT_TARGET = 'https://xhslink.cn/m/6WxO9KMNJQM';
