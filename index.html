@@ -779,6 +779,7 @@
       'use strict';
 
       var PUBLIC_BASE_URL = 'https://dadi6666666.github.io/scan-broadcast/';
+      var APP_VERSION = '20260905-webview';
       var NTFY_BASE_URL = 'https://ntfy.sh';
       var NTFY_TOPIC_PREFIX = 'dadi-scan-';
       var DEFAULT_TARGET = 'https://xhslink.cn/m/6WxO9KMNJQM';
@@ -880,6 +881,7 @@
         var url = baseUrl();
         url.searchParams.set('mode', nextMode);
         url.searchParams.set('event', id);
+        url.searchParams.set('v', APP_VERSION);
         return url.href;
       }
       function randomId(prefix) {
