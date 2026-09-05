@@ -325,9 +325,10 @@
       isolation: isolate;
       overflow: hidden;
       display: grid;
-      grid-template-columns: minmax(440px, 52%) 1fr;
+      grid-template-columns: minmax(520px, 620px) minmax(0, 1fr);
       grid-template-rows: auto minmax(0, 1fr) auto;
-      padding: clamp(44px, 6vh, 66px) clamp(48px, 6vw, 76px);
+      column-gap: clamp(24px, 3vw, 44px);
+      padding: clamp(46px, 6vh, 60px) clamp(52px, 5vw, 68px) clamp(48px, 6vh, 62px) clamp(58px, 5.6vw, 76px);
     }
     .poster::before {
       content: "";
@@ -337,8 +338,8 @@
       background: url("retro-climber-background.jpg") calc(100% + 96px) center / auto 86% no-repeat;
       opacity: .86;
       mix-blend-mode: multiply;
-      -webkit-mask-image: linear-gradient(90deg, transparent 0 50%, rgba(0,0,0,.05) 56%, rgba(0,0,0,.48) 69%, #000 80%);
-      mask-image: linear-gradient(90deg, transparent 0 50%, rgba(0,0,0,.05) 56%, rgba(0,0,0,.48) 69%, #000 80%);
+      -webkit-mask-image: linear-gradient(90deg, transparent 0 43%, rgba(0,0,0,.06) 50%, rgba(0,0,0,.5) 64%, #000 74%);
+      mask-image: linear-gradient(90deg, transparent 0 43%, rgba(0,0,0,.06) 50%, rgba(0,0,0,.5) 64%, #000 74%);
       pointer-events: none;
     }
     .poster::after {
@@ -373,21 +374,22 @@
     }
     .poster-copy {
       grid-column: 1;
-      align-self: start;
-      max-width: 520px;
-      padding: clamp(54px, 8vh, 86px) 0 clamp(54px, 7vh, 78px);
+      align-self: center;
+      max-width: 620px;
+      padding: clamp(34px, 5vh, 58px) 0 clamp(44px, 6vh, 68px);
     }
     .poster-headline {
       margin: 0;
-      font-size: clamp(44px, 4.8vw, 58px);
-      line-height: 1.07;
-      letter-spacing: -.05em;
+      font-size: clamp(56px, 6.2vw, 68px);
+      line-height: 1.04;
+      letter-spacing: -.048em;
       font-weight: 760;
+      white-space: nowrap;
     }
     .poster-headline span,
     .poster-headline em { display: block; }
     .poster-headline em {
-      margin-top: 26px;
+      margin-top: 30px;
       color: #e8542a;
       font-size: .52em;
       line-height: 1.25;
@@ -395,13 +397,32 @@
       letter-spacing: -.015em;
       white-space: nowrap;
     }
+    .poster-principle {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 30px 0 0;
+      color: #2655b5;
+      font-size: clamp(14px, 1.55vw, 17px);
+      line-height: 1.45;
+      font-weight: 750;
+      letter-spacing: .01em;
+      white-space: nowrap;
+    }
+    .poster-principle::before {
+      content: "";
+      flex: 0 0 28px;
+      width: 28px;
+      height: 3px;
+      background: #2655b5;
+    }
     .poster-action {
       grid-column: 1;
       display: grid;
       grid-template-columns: auto minmax(150px, 1fr);
       align-items: end;
       gap: clamp(26px, 3vw, 34px);
-      width: min(100%, 520px);
+      width: min(100%, 600px);
     }
     .poster-qr-wrap { position: relative; }
     .poster-qr-label {
@@ -421,7 +442,7 @@
       letter-spacing: .14em;
     }
     .poster .qr-box {
-      width: clamp(214px, 23.5vw, 246px);
+      width: clamp(258px, 26vw, 286px);
       margin: 0;
       padding: 14px;
       border: 2px solid #17191e;
@@ -430,15 +451,8 @@
       box-shadow: 9px 10px 0 rgba(38,85,181,.16);
     }
     .poster-meta {
-      align-self: end;
-      padding-bottom: 4px;
-    }
-    .poster-meta strong {
-      display: block;
-      margin-bottom: 11px;
-      color: #2655b5;
-      font-size: clamp(20px, 2.2vw, 24px);
-      line-height: 1.1;
+      align-self: center;
+      padding-bottom: 0;
     }
     .poster-meta p {
       margin: 0;
@@ -453,18 +467,8 @@
       font-weight: 650;
       letter-spacing: .04em;
     }
-    .poster-meta .poster-manifesto {
-      max-width: 205px;
-      margin-top: 20px;
-      padding-left: 11px;
-      border-left: 3px solid #2655b5;
-      color: rgba(23,25,30,.78);
-      font-size: clamp(11px, 1.25vw, 13px);
-      line-height: 1.55;
-      font-weight: 650;
-    }
     .online-chip {
-      display: flex;
+      display: none;
       align-items: center;
       gap: 8px;
       margin-top: 18px;
@@ -531,9 +535,10 @@
 
     @media (orientation: landscape) and (max-height: 700px) {
       .poster { padding: 34px 46px; }
-      .poster-copy { padding: 34px 0 26px; }
-      .poster-headline { font-size: 47px; }
-      .poster .qr-box { width: 205px; }
+      .poster-copy { padding: 24px 0 32px; }
+      .poster-headline { font-size: 52px; }
+      .poster-headline em { margin-top: 20px; }
+      .poster .qr-box { width: 226px; }
       .poster-caption { right: 30px; bottom: 26px; }
     }
 
@@ -561,7 +566,11 @@
         max-width: 540px;
         padding: 210px 0 44px;
       }
-      .poster-headline { font-size: clamp(46px, 8.3vw, 64px); }
+      .poster-headline {
+        font-size: clamp(46px, 8.3vw, 64px);
+        white-space: normal;
+      }
+      .poster-principle { white-space: normal; }
       .poster-action { width: min(100%, 540px); }
       .poster-caption { display: none; }
     }
@@ -574,7 +583,8 @@
       }
       .poster-top { flex-wrap: wrap; }
       .poster-copy { padding: 210px 0 38px; }
-      .poster-headline { font-size: 44px; }
+      .poster-headline { font-size: 44px; white-space: normal; }
+      .poster-principle { white-space: normal; }
       .poster-action {
         grid-template-columns: minmax(178px, 210px) 1fr;
         gap: 20px;
@@ -643,7 +653,7 @@
           <article class="action-card">
             <div class="action-icon">🧗</div>
             <h3>iPad 现场展示</h3>
-            <p>推荐入口。先由你开启播报，操作层消失后只展示欢迎岩友关注的海报和二维码。</p>
+            <p>唯一必用入口。海报自己监听、自己播放；开场点一次开启后，不用再打开独立播报页。</p>
             <div class="action-buttons">
               <a id="posterOpen" class="btn green small" target="_blank" rel="noopener">打开</a>
               <button id="posterCopy" class="btn secondary small">复制</button>
@@ -688,9 +698,9 @@
     <div id="posterSetup" class="poster-setup">
       <section class="poster-setup-card">
         <div class="eyebrow">iPad 现场准备</div>
-        <h3>开启播报并试听</h3>
-        <p>先关闭静音，并把 iPad“自动锁定”设为“永不”。听到“播报已开启”后，本操作层会自动消失；岩友只会看到欢迎关注的海报。</p>
-        <button id="posterLiveStart" class="btn green">开启并试听</button>
+        <h3>点一次，之后自动播报</h3>
+        <p>这张海报自己就是播报台，不用再开别的页面。先关闭静音，并把 iPad“自动锁定”设为“永不”；听到“播报已开启”后保持这张海报在前台，之后每次扫码都会自动念。</p>
+        <button id="posterLiveStart" class="btn green">开启自动播报并试听</button>
         <div id="posterLiveStatus" class="status" aria-live="polite"></div>
       </section>
     </div>
@@ -701,10 +711,10 @@
       </header>
       <div class="poster-copy">
         <h2 class="poster-headline">
-          <span>重力那边，</span>
-          <span>我聊过了。</span>
+          <span>重力那边，我聊过了。</span>
           <em>大佬辛苦了，来块巧克力吧。</em>
         </h2>
+        <p class="poster-principle">墙上没有玄学，只有还没讲明白的道理。</p>
       </div>
       <div class="poster-action">
         <div class="poster-qr-wrap">
@@ -712,10 +722,8 @@
           <div id="posterQr" class="qr-box"></div>
         </div>
         <div class="poster-meta">
-          <strong>扫码关注</strong>
           <p>攀岩技术动画<br>每周更新</p>
           <p class="poster-ai">对话 AI 制作</p>
-          <p class="poster-manifesto">墙上没有玄学，<br>只有还没讲明白的道理。</p>
           <div id="posterOnlineChip" class="online-chip">
             <i id="posterOnlineDot" class="online-dot"></i>
             <span id="posterOnlineText">扫码直达小红书主页</span>
@@ -769,7 +777,7 @@
   </main>
 
   <audio id="announcementAudio" preload="auto" playsinline x-webkit-airplay="allow" aria-hidden="true">
-    <source src="announce.m4a" type="audio/mp4">
+    <source src="announce-yunjian-v1.mp3" type="audio/mpeg">
   </audio>
 
   <script>
@@ -782,8 +790,8 @@
       var DEFAULT_TARGET = 'https://xhslink.cn/m/6WxO9KMNJQM';
       var DEFAULT_SPEECH = '感谢大佬关注“大迪在面壁”！愿大佬动作有逻辑，发力讲科学；上墙有劲，下墙平安，V6酷酷拿下，难线统统不怕！';
       var DEFAULT_TTS_SPEECH = '感谢大佬，关注大迪在面壁！愿大佬，动作有逻辑，发力讲科学；上墙有劲，下墙平安！V六，酷酷拿下；难线，统统不怕！';
-      var AUDIO_FILE = 'announce.m4a';
-      var READY_AUDIO_FILE = 'ready.m4a';
+      var AUDIO_FILE = 'announce-yunjian-v1.mp3';
+      var READY_AUDIO_FILE = 'ready-yunjian-v1.mp3';
       var QR_SOURCES = [
         'https://cdn.bootcdn.net/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
         'https://cdn.staticfile.net/qrcodejs/1.0.0/qrcode.min.js',
@@ -1002,7 +1010,8 @@
         config.target = safeXhsUrl(config.target) || DEFAULT_TARGET;
         config.speech = String(config.speech || DEFAULT_SPEECH);
         config.ttsSpeech = String(config.ttsSpeech || config.speech || DEFAULT_TTS_SPEECH);
-        config.audioFile = config.audioFile === AUDIO_FILE ? AUDIO_FILE : '';
+        var usesDefaultSpeech = config.speech === DEFAULT_SPEECH || config.ttsSpeech === DEFAULT_TTS_SPEECH;
+        config.audioFile = usesDefaultSpeech || config.audioFile === AUDIO_FILE ? AUDIO_FILE : '';
         return config;
       }
 
@@ -1115,7 +1124,7 @@
             localStorage.setItem('dadi-last-activity', JSON.stringify(activity));
             saved = activity;
             renderActivity(activity);
-            setStatus(byId('adminStatus'), '活动已发布。请在现场 iPad 打开展示页，并点一次“开启并试听”。', 'ok');
+            setStatus(byId('adminStatus'), '活动已发布。请在现场 iPad 打开展示页，点一次“开启自动播报”；之后不用再开独立播报页。', 'ok');
           } catch (error) {
             setStatus(byId('adminStatus'), readableError(error, '活动发布失败，请重试'), 'bad');
           } finally {
@@ -1152,7 +1161,8 @@
         if (!eventId) { show('errorPage'); return; }
         liveSurface = 'poster';
         show('posterPage');
-        if (params.get('preview') === '1') byId('posterSetup').classList.add('hidden');
+        // 只允许本机设计预览跳过声音授权；线上即使链接误带 preview=1，也必须先完成一次授权。
+        if (params.get('preview') === '1' && !isHostedRuntime()) byId('posterSetup').classList.add('hidden');
         try {
           await makeQr('posterQr', modeUrl('scan', eventId), 320);
           if (!isHostedRuntime()) {
@@ -1345,7 +1355,8 @@
             await playFixedAudio(config.audioFile);
             played = true;
           } catch (_) {
-            fixedAudioAvailable = false;
+            // 临时网络/页面状态失败不能让整场永久退回系统嗓音；下一次仍优先尝试云健音频。
+            fixedAudioAvailable = true;
           }
         }
         if (!played) await speakText(config.ttsSpeech || config.speech || DEFAULT_TTS_SPEECH);
@@ -1534,6 +1545,7 @@
       async function connectSpeaker(preserveBaseline) {
         var keepBaseline = Boolean(preserveBaseline && speakerStarted);
         closeSpeakerConnections();
+        fixedAudioAvailable = true;
         if (!keepBaseline) seenDocs = new Set();
         baselineReady = keepBaseline;
         setLiveStatus('正在连接活动…');
