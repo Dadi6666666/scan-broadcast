@@ -376,34 +376,35 @@
       grid-column: 1;
       align-self: center;
       max-width: 620px;
-      padding: clamp(34px, 5vh, 58px) 0 clamp(44px, 6vh, 68px);
+      padding: 22px 0 30px;
+    }
+    .poster-hook {
+      margin: 0 0 20px;
+      color: #e8542a;
+      font-size: clamp(23px, 2.7vw, 30px);
+      line-height: 1.2;
+      font-weight: 850;
+      letter-spacing: -.025em;
+      white-space: nowrap;
     }
     .poster-headline {
       margin: 0;
-      font-size: clamp(56px, 6.2vw, 68px);
-      line-height: 1.04;
-      letter-spacing: -.048em;
-      font-weight: 760;
-      white-space: nowrap;
+      color: #17191e;
+      font-size: clamp(58px, 6.25vw, 66px);
+      line-height: .96;
+      letter-spacing: -.06em;
+      font-weight: 780;
+      white-space: normal;
     }
-    .poster-headline span,
-    .poster-headline em { display: block; }
-    .poster-headline em {
-      margin-top: 30px;
-      color: #e8542a;
-      font-size: .52em;
-      line-height: 1.25;
-      font-style: normal;
-      letter-spacing: -.015em;
-      white-space: nowrap;
-    }
+    .poster-headline span { display: block; }
+    .poster-headline span + span { margin-top: 7px; }
     .poster-principle {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin: 30px 0 0;
+      margin: 27px 0 0;
       color: #2655b5;
-      font-size: clamp(14px, 1.55vw, 17px);
+      font-size: clamp(14px, 1.5vw, 16px);
       line-height: 1.45;
       font-weight: 750;
       letter-spacing: .01em;
@@ -426,14 +427,35 @@
     }
     .poster-qr-wrap { position: relative; }
     .poster-qr-label {
+      min-height: 23px;
       display: flex;
-      align-items: baseline;
+      align-items: center;
+      gap: 8px;
       margin-bottom: 12px;
-      color: #e8542a;
-      font-size: clamp(17px, 1.7vw, 20px);
-      line-height: 1.15;
+      color: #17191e;
+      white-space: nowrap;
+    }
+    .poster-xhs-badge {
+      padding: 4px 8px;
+      border-radius: 3px;
+      color: #fff;
+      background: #ff2442;
+      font-size: 12px;
+      line-height: 1;
       font-weight: 850;
-      letter-spacing: .025em;
+      letter-spacing: .04em;
+    }
+    .poster-xhs-handle {
+      font-size: 16px;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: -.01em;
+    }
+    .poster-qr-arrow {
+      color: #ff2442;
+      font-size: 17px;
+      line-height: 1;
+      font-weight: 900;
     }
     .poster .qr-box {
       width: clamp(258px, 26vw, 286px);
@@ -445,21 +467,22 @@
       box-shadow: 9px 10px 0 rgba(38,85,181,.16);
     }
     .poster-meta {
-      align-self: center;
-      padding-bottom: 0;
+      align-self: end;
+      padding-bottom: 5px;
+      color: rgba(23,25,30,.52);
     }
     .poster-meta p {
       margin: 0;
-      font-size: clamp(13px, 1.55vw, 16px);
-      line-height: 1.6;
+      font-size: 13px;
+      line-height: 1.45;
       font-weight: 650;
+      letter-spacing: .035em;
+      white-space: nowrap;
     }
     .poster-meta .poster-ai {
-      margin-top: 8px;
-      color: rgba(23,25,30,.62);
-      font-size: clamp(11px, 1.25vw, 13px);
-      font-weight: 650;
-      letter-spacing: .04em;
+      margin-top: 5px;
+      color: rgba(23,25,30,.42);
+      font-size: 11px;
     }
     .online-chip {
       display: none;
@@ -531,7 +554,7 @@
       .poster { padding: 34px 46px; }
       .poster-copy { padding: 24px 0 32px; }
       .poster-headline { font-size: 52px; }
-      .poster-headline em { margin-top: 20px; }
+      .poster-hook { margin-bottom: 16px; font-size: 23px; }
       .poster .qr-box { width: 226px; }
       .poster-caption { right: 30px; bottom: 26px; }
     }
@@ -584,6 +607,8 @@
         gap: 20px;
       }
       .poster .qr-box { width: 100%; }
+      .poster-meta p { font-size: 10px; white-space: normal; }
+      .poster-meta .poster-ai { font-size: 9px; }
       .poster-meta strong { font-size: 19px; }
     }
   </style>
@@ -704,19 +729,24 @@
         <span class="poster-series">跟墙讲道理</span>
       </header>
       <div class="poster-copy">
+        <p class="poster-hook">大佬辛苦了，来块巧克力吧。</p>
         <h2 class="poster-headline">
-          <span>重力那边，我聊过了。</span>
-          <em>大佬辛苦了，来块巧克力吧。</em>
+          <span>重力那边，</span>
+          <span>我聊过了。</span>
         </h2>
         <p class="poster-principle">墙上没有玄学，只有还没讲明白的道理。</p>
       </div>
       <div class="poster-action">
         <div class="poster-qr-wrap">
-          <div class="poster-qr-label"><span>小红书账号 · 顺手关注一下 ↓</span></div>
+          <div class="poster-qr-label" aria-label="小红书账号：大迪在面壁">
+            <span class="poster-xhs-badge">小红书</span>
+            <span class="poster-xhs-handle">@大迪在面壁</span>
+            <span class="poster-qr-arrow" aria-hidden="true">↓</span>
+          </div>
           <div id="posterQr" class="qr-box"></div>
         </div>
         <div class="poster-meta">
-          <p>攀岩技术动画<br>每周更新</p>
+          <p>攀岩技术动画 · 每周更新</p>
           <p class="poster-ai">对话 AI 制作</p>
           <div id="posterOnlineChip" class="online-chip">
             <i id="posterOnlineDot" class="online-dot"></i>
@@ -779,7 +809,7 @@
       'use strict';
 
       var PUBLIC_BASE_URL = 'https://dadi6666666.github.io/scan-broadcast/';
-      var APP_VERSION = '20260905-webview';
+      var APP_VERSION = '20260906-hierarchy';
       var NTFY_BASE_URL = 'https://ntfy.sh';
       var NTFY_TOPIC_PREFIX = 'dadi-scan-';
       var DEFAULT_TARGET = 'https://xhslink.cn/m/6WxO9KMNJQM';
