@@ -334,11 +334,11 @@
       position: absolute;
       z-index: 0;
       inset: -6% -2%;
-      background: url("retro-climber-background.jpg") calc(100% + 28px) center / auto 112% no-repeat;
-      opacity: .91;
+      background: url("retro-climber-background.jpg") calc(100% + 96px) center / auto 86% no-repeat;
+      opacity: .86;
       mix-blend-mode: multiply;
-      -webkit-mask-image: linear-gradient(90deg, transparent 0 30%, rgba(0,0,0,.13) 40%, #000 57%);
-      mask-image: linear-gradient(90deg, transparent 0 30%, rgba(0,0,0,.13) 40%, #000 57%);
+      -webkit-mask-image: linear-gradient(90deg, transparent 0 50%, rgba(0,0,0,.05) 56%, rgba(0,0,0,.48) 69%, #000 80%);
+      mask-image: linear-gradient(90deg, transparent 0 50%, rgba(0,0,0,.05) 56%, rgba(0,0,0,.48) 69%, #000 80%);
       pointer-events: none;
     }
     .poster::after {
@@ -373,34 +373,27 @@
     }
     .poster-copy {
       grid-column: 1;
-      align-self: center;
+      align-self: start;
       max-width: 520px;
-      padding: clamp(34px, 5vh, 58px) 0 clamp(30px, 4vh, 48px);
+      padding: clamp(54px, 8vh, 86px) 0 clamp(54px, 7vh, 78px);
     }
     .poster-headline {
       margin: 0;
-      font-size: clamp(46px, 5.6vw, 64px);
-      line-height: 1.035;
-      letter-spacing: -.055em;
+      font-size: clamp(44px, 4.8vw, 58px);
+      line-height: 1.07;
+      letter-spacing: -.05em;
       font-weight: 760;
     }
     .poster-headline span,
     .poster-headline em { display: block; }
     .poster-headline em {
-      margin-top: 15px;
+      margin-top: 26px;
       color: #e8542a;
-      font-size: .79em;
+      font-size: .52em;
+      line-height: 1.25;
       font-style: normal;
-      letter-spacing: -.04em;
-    }
-    .poster-slogan {
-      max-width: 420px;
-      margin: clamp(24px, 3.2vh, 34px) 0 0;
-      padding-left: 16px;
-      border-left: 5px solid #2655b5;
-      font-size: clamp(17px, 1.9vw, 20px);
-      line-height: 1.5;
-      font-weight: 580;
+      letter-spacing: -.015em;
+      white-space: nowrap;
     }
     .poster-action {
       grid-column: 1;
@@ -460,6 +453,16 @@
       font-weight: 650;
       letter-spacing: .04em;
     }
+    .poster-meta .poster-manifesto {
+      max-width: 205px;
+      margin-top: 20px;
+      padding-left: 11px;
+      border-left: 3px solid #2655b5;
+      color: rgba(23,25,30,.78);
+      font-size: clamp(11px, 1.25vw, 13px);
+      line-height: 1.55;
+      font-weight: 650;
+    }
     .online-chip {
       display: flex;
       align-items: center;
@@ -499,6 +502,8 @@
     }
     .poster-page .status.ok { color: #18724f; }
     .poster-page .status.bad { color: #b12d24; }
+    .poster-page #posterQrStatus { display: none; }
+    .poster-page #posterQrStatus.bad { display: block; }
 
     .scan-success .mode-icon { background: linear-gradient(145deg, #1a986b, #106b4a); }
     .scan-error .mode-icon { background: linear-gradient(145deg, #e08b27, #a85a16); }
@@ -526,9 +531,8 @@
 
     @media (orientation: landscape) and (max-height: 700px) {
       .poster { padding: 34px 46px; }
-      .poster-copy { padding: 24px 0 20px; }
-      .poster-headline { font-size: 50px; }
-      .poster-slogan { margin-top: 18px; font-size: 17px; }
+      .poster-copy { padding: 34px 0 26px; }
+      .poster-headline { font-size: 47px; }
       .poster .qr-box { width: 205px; }
       .poster-caption { right: 30px; bottom: 26px; }
     }
@@ -571,7 +575,6 @@
       .poster-top { flex-wrap: wrap; }
       .poster-copy { padding: 210px 0 38px; }
       .poster-headline { font-size: 44px; }
-      .poster-slogan { font-size: 16px; }
       .poster-action {
         grid-template-columns: minmax(178px, 210px) 1fr;
         gap: 20px;
@@ -700,19 +703,19 @@
         <h2 class="poster-headline">
           <span>重力那边，</span>
           <span>我聊过了。</span>
-          <em>求大佬关注</em>
+          <em>大佬辛苦了，来块巧克力吧。</em>
         </h2>
-        <p class="poster-slogan">墙上没有玄学，<br>只有还没讲明白的道理。</p>
       </div>
       <div class="poster-action">
         <div class="poster-qr-wrap">
-          <div class="poster-qr-label"><span>扫这里 ↓</span><small>SCAN TO FOLLOW</small></div>
+          <div class="poster-qr-label"><span>顺手关注一下 ↓</span><small>SCAN TO FOLLOW</small></div>
           <div id="posterQr" class="qr-box"></div>
         </div>
         <div class="poster-meta">
           <strong>扫码关注</strong>
           <p>攀岩技术动画<br>每周更新</p>
           <p class="poster-ai">对话 AI 制作</p>
+          <p class="poster-manifesto">墙上没有玄学，<br>只有还没讲明白的道理。</p>
           <div id="posterOnlineChip" class="online-chip">
             <i id="posterOnlineDot" class="online-dot"></i>
             <span id="posterOnlineText">扫码直达小红书主页</span>
