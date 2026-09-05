@@ -279,26 +279,19 @@
 
     .poster-page {
       min-height: 100vh;
+      min-height: 100svh;
       position: relative;
       overflow: hidden;
-      display: grid;
-      place-items: center;
-      padding: clamp(18px, 4vw, 42px);
-      color: white;
-      background:
-        radial-gradient(circle at 16% 8%, rgba(242,184,75,.30), transparent 27rem),
-        radial-gradient(circle at 92% 88%, rgba(243,78,63,.28), transparent 30rem),
-        linear-gradient(145deg, #11181e, #2d2624 55%, #662923);
+      color: #17191e;
+      background: #f3ead7 url("retro-paper-background.jpg") center / cover no-repeat;
     }
     .poster-page::before {
       content: "";
       position: absolute;
-      width: 58vmin;
-      height: 58vmin;
-      left: -29vmin;
-      top: -28vmin;
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: 50%;
+      z-index: 0;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(243,234,215,.38), transparent 52%);
+      pointer-events: none;
     }
     .poster-setup {
       position: fixed;
@@ -325,47 +318,187 @@
     .poster-setup-card .btn { width: 100%; margin-top: 18px; }
     .poster-setup-card .status { margin-bottom: 0; }
     .poster {
-      width: min(760px, 100%);
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100svh;
       position: relative;
-      z-index: 1;
-      text-align: center;
+      isolation: isolate;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(440px, 52%) 1fr;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      padding: clamp(44px, 6vh, 66px) clamp(48px, 6vw, 76px);
     }
-    .poster-kicker { color: #ffd37a; font-weight: 900; letter-spacing: .16em; font-size: 13px; }
-    .poster h2 { margin: 12px 0 7px; font-size: clamp(42px, 10vw, 88px); letter-spacing: -.055em; }
-    .poster-sub { margin: 0; color: rgba(255,255,255,.72); font-size: clamp(16px, 3vw, 22px); }
-    .poster .qr-box { width: min(350px, 72vw); margin-top: 27px; }
-    .online-chip {
+    .poster::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      inset: -6% -2%;
+      background: url("retro-climber-background.jpg") calc(100% + 28px) center / auto 112% no-repeat;
+      opacity: .91;
+      mix-blend-mode: multiply;
+      -webkit-mask-image: linear-gradient(90deg, transparent 0 30%, rgba(0,0,0,.13) 40%, #000 57%);
+      mask-image: linear-gradient(90deg, transparent 0 30%, rgba(0,0,0,.13) 40%, #000 57%);
+      pointer-events: none;
+    }
+    .poster::after {
+      content: "";
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(243,234,215,.98) 0 31%, rgba(243,234,215,.88) 41%, rgba(243,234,215,.2) 58%, transparent 69%);
+      pointer-events: none;
+    }
+    .poster > * { position: relative; z-index: 2; }
+    .poster-top {
+      grid-column: 1;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+    .poster-brand {
       display: inline-flex;
+      padding: 7px 11px;
+      color: #f3ead7;
+      background: #17191e;
+      font-size: clamp(12px, 1.4vw, 14px);
+      font-weight: 700;
+      letter-spacing: .08em;
+    }
+    .poster-series {
+      color: #2655b5;
+      font-size: clamp(12px, 1.35vw, 14px);
+      font-weight: 800;
+      letter-spacing: .06em;
+    }
+    .poster-copy {
+      grid-column: 1;
+      align-self: center;
+      max-width: 520px;
+      padding: clamp(34px, 5vh, 58px) 0 clamp(30px, 4vh, 48px);
+    }
+    .poster-headline {
+      margin: 0;
+      font-size: clamp(46px, 5.6vw, 64px);
+      line-height: 1.035;
+      letter-spacing: -.055em;
+      font-weight: 760;
+    }
+    .poster-headline span,
+    .poster-headline em { display: block; }
+    .poster-headline em {
+      margin-top: 15px;
+      color: #e8542a;
+      font-size: .79em;
+      font-style: normal;
+      letter-spacing: -.04em;
+    }
+    .poster-slogan {
+      max-width: 420px;
+      margin: clamp(24px, 3.2vh, 34px) 0 0;
+      padding-left: 16px;
+      border-left: 5px solid #2655b5;
+      font-size: clamp(17px, 1.9vw, 20px);
+      line-height: 1.5;
+      font-weight: 580;
+    }
+    .poster-action {
+      grid-column: 1;
+      display: grid;
+      grid-template-columns: auto minmax(150px, 1fr);
+      align-items: end;
+      gap: clamp(26px, 3vw, 34px);
+      width: min(100%, 520px);
+    }
+    .poster-qr-wrap { position: relative; }
+    .poster-qr-label {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      color: #e8542a;
+      font-size: 14px;
+      font-weight: 850;
+      letter-spacing: .08em;
+    }
+    .poster-qr-label small {
+      color: rgba(23,25,30,.58);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+    }
+    .poster .qr-box {
+      width: clamp(214px, 23.5vw, 246px);
+      margin: 0;
+      padding: 14px;
+      border: 2px solid #17191e;
+      border-radius: 3px;
+      background: #fffdf7;
+      box-shadow: 9px 10px 0 rgba(38,85,181,.16);
+    }
+    .poster-meta {
+      align-self: end;
+      padding-bottom: 4px;
+    }
+    .poster-meta strong {
+      display: block;
+      margin-bottom: 11px;
+      color: #2655b5;
+      font-size: clamp(20px, 2.2vw, 24px);
+      line-height: 1.1;
+    }
+    .poster-meta p {
+      margin: 0;
+      font-size: clamp(13px, 1.55vw, 16px);
+      line-height: 1.6;
+      font-weight: 650;
+    }
+    .poster-meta .poster-ai {
+      margin-top: 8px;
+      color: rgba(23,25,30,.62);
+      font-size: clamp(11px, 1.25vw, 13px);
+      font-weight: 650;
+      letter-spacing: .04em;
+    }
+    .online-chip {
+      display: flex;
       align-items: center;
       gap: 8px;
-      margin-top: 17px;
-      padding: 9px 14px;
-      border: 1px solid rgba(255,255,255,.13);
-      border-radius: 999px;
-      background: rgba(255,255,255,.08);
-      color: rgba(255,255,255,.9);
-      font-weight: 800;
+      margin-top: 18px;
+      color: rgba(23,25,30,.62);
+      font-size: 11px;
+      font-weight: 750;
+      line-height: 1.35;
     }
     .online-dot {
-      width: 9px;
-      height: 9px;
+      flex: 0 0 auto;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      background: #70e39c;
-      box-shadow: 0 0 0 7px rgba(112,227,156,.12);
+      background: #2655b5;
+      box-shadow: 0 0 0 5px rgba(38,85,181,.1);
     }
-    .poster-hold {
+    .poster-caption {
       position: absolute;
-      border-radius: 48% 52% 45% 55%;
-      opacity: .62;
-      filter: drop-shadow(0 14px 24px rgba(0,0,0,.25));
-      animation: drift 6s ease-in-out infinite;
+      right: clamp(34px, 4.5vw, 64px);
+      bottom: clamp(28px, 4.2vh, 48px);
+      margin: 0;
+      color: rgba(23,25,30,.5);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .16em;
+      writing-mode: vertical-rl;
     }
-    .poster-hold.a { width: 90px; height: 62px; left: 5%; top: 20%; background: var(--gold); transform: rotate(21deg); }
-    .poster-hold.b { width: 66px; height: 100px; right: 4%; top: 28%; background: var(--red); transform: rotate(-18deg); animation-delay: -2s; }
-    .poster-hold.c { width: 48px; height: 45px; left: 10%; bottom: 12%; background: #58b894; animation-delay: -4s; }
-    .poster-page .status { color: rgba(255,255,255,.72); }
-    .poster-page .status.ok { color: #9ff0bb; }
-    .poster-page .status.bad { color: #ffb6ae; }
+    .poster-page .status {
+      min-height: 0;
+      margin-top: 10px;
+      color: rgba(23,25,30,.55);
+      font-size: 11px;
+      line-height: 1.4;
+      text-align: left;
+    }
+    .poster-page .status.ok { color: #18724f; }
+    .poster-page .status.bad { color: #b12d24; }
 
     .scan-success .mode-icon { background: linear-gradient(145deg, #1a986b, #106b4a); }
     .scan-error .mode-icon { background: linear-gradient(145deg, #e08b27, #a85a16); }
@@ -374,10 +507,6 @@
     @keyframes float {
       0%,100% { translate: 0 0; }
       50% { translate: 0 -8px; }
-    }
-    @keyframes drift {
-      0%,100% { translate: 0 0; }
-      50% { translate: 0 -13px; }
     }
     @keyframes pulse {
       0%,100% { box-shadow: 0 0 0 0 rgba(22,131,91,.28); }
@@ -393,6 +522,62 @@
       .action-card { min-height: 165px; }
       .counter-row { gap: 8px; }
       .counter { min-width: 102px; }
+    }
+
+    @media (orientation: landscape) and (max-height: 700px) {
+      .poster { padding: 34px 46px; }
+      .poster-copy { padding: 24px 0 20px; }
+      .poster-headline { font-size: 50px; }
+      .poster-slogan { margin-top: 18px; font-size: 17px; }
+      .poster .qr-box { width: 205px; }
+      .poster-caption { right: 30px; bottom: 26px; }
+    }
+
+    @media (max-width: 820px) and (orientation: portrait) {
+      .poster {
+        grid-template-columns: 1fr;
+        padding: 38px 34px 42px;
+      }
+      .poster::before {
+        inset: -3% -25% 26% 4%;
+        background-position: right top;
+        background-size: auto 82%;
+        opacity: .62;
+        -webkit-mask-image: linear-gradient(90deg, transparent 0 22%, #000 58%);
+        mask-image: linear-gradient(90deg, transparent 0 22%, #000 58%);
+      }
+      .poster::after {
+        background: linear-gradient(180deg, rgba(243,234,215,.26) 0 31%, rgba(243,234,215,.92) 52%, #f3ead7 68%);
+      }
+      .poster-top,
+      .poster-copy,
+      .poster-action { grid-column: 1; }
+      .poster-copy {
+        align-self: end;
+        max-width: 540px;
+        padding: 210px 0 44px;
+      }
+      .poster-headline { font-size: clamp(46px, 8.3vw, 64px); }
+      .poster-action { width: min(100%, 540px); }
+      .poster-caption { display: none; }
+    }
+
+    @media (max-width: 520px) {
+      .poster {
+        display: block;
+        min-height: 100svh;
+        padding: 28px 22px 34px;
+      }
+      .poster-top { flex-wrap: wrap; }
+      .poster-copy { padding: 210px 0 38px; }
+      .poster-headline { font-size: 44px; }
+      .poster-slogan { font-size: 16px; }
+      .poster-action {
+        grid-template-columns: minmax(178px, 210px) 1fr;
+        gap: 20px;
+      }
+      .poster .qr-box { width: 100%; }
+      .poster-meta strong { font-size: 19px; }
     }
   </style>
 </head>
@@ -497,9 +682,6 @@
   </main>
 
   <main id="posterPage" class="poster-page hidden">
-    <i class="poster-hold a" aria-hidden="true"></i>
-    <i class="poster-hold b" aria-hidden="true"></i>
-    <i class="poster-hold c" aria-hidden="true"></i>
     <div id="posterSetup" class="poster-setup">
       <section class="poster-setup-card">
         <div class="eyebrow">iPad 现场准备</div>
@@ -510,15 +692,35 @@
       </section>
     </div>
     <section class="poster">
-      <div class="poster-kicker">大迪在面壁 · 小红书</div>
-      <h2>岩友你好，<br>欢迎来小红书找我玩。</h2>
-      <p class="poster-sub">扫码关注「大迪在面壁」</p>
-      <div id="posterQr" class="qr-box"></div>
-      <div id="posterOnlineChip" class="online-chip">
-        <i id="posterOnlineDot" class="online-dot"></i>
-        <span id="posterOnlineText">扫码直达小红书主页</span>
+      <header class="poster-top">
+        <span class="poster-brand">大迪在面壁</span>
+        <span class="poster-series">跟墙讲道理</span>
+      </header>
+      <div class="poster-copy">
+        <h2 class="poster-headline">
+          <span>重力那边，</span>
+          <span>我聊过了。</span>
+          <em>求大佬关注</em>
+        </h2>
+        <p class="poster-slogan">墙上没有玄学，<br>只有还没讲明白的道理。</p>
       </div>
-      <div id="posterQrStatus" class="status" aria-live="polite"></div>
+      <div class="poster-action">
+        <div class="poster-qr-wrap">
+          <div class="poster-qr-label"><span>扫这里 ↓</span><small>SCAN TO FOLLOW</small></div>
+          <div id="posterQr" class="qr-box"></div>
+        </div>
+        <div class="poster-meta">
+          <strong>扫码关注</strong>
+          <p>攀岩技术动画<br>每周更新</p>
+          <p class="poster-ai">对话 AI 制作</p>
+          <div id="posterOnlineChip" class="online-chip">
+            <i id="posterOnlineDot" class="online-dot"></i>
+            <span id="posterOnlineText">扫码直达小红书主页</span>
+          </div>
+          <div id="posterQrStatus" class="status" aria-live="polite"></div>
+        </div>
+      </div>
+      <p class="poster-caption">CLIMB · PHYSICS · ANIMATION</p>
     </section>
   </main>
 
@@ -947,6 +1149,7 @@
         if (!eventId) { show('errorPage'); return; }
         liveSurface = 'poster';
         show('posterPage');
+        if (params.get('preview') === '1') byId('posterSetup').classList.add('hidden');
         try {
           await makeQr('posterQr', modeUrl('scan', eventId), 320);
           if (!isHostedRuntime()) {
@@ -1160,7 +1363,7 @@
           try {
             await playAnnouncement(item.isTest);
             setLiveStatus(
-              liveSurface === 'poster' ? '二维码保持展示，扫码会在本页自动播报' : '实时监听中',
+              liveSurface === 'poster' ? '现场展示已就绪' : '实时监听中',
               'ok'
             );
           } catch (error) {
@@ -1188,7 +1391,7 @@
       function markListenerReady() {
         setLivePulse(true);
         setLiveStatus(
-          liveSurface === 'poster' ? '二维码保持展示，扫码会在本页自动播报' : '实时监听中',
+          liveSurface === 'poster' ? '现场展示已就绪' : '实时监听中',
           'ok'
         );
         if (liveSurface === 'poster') byId('posterSetup').classList.add('hidden');
@@ -1230,7 +1433,7 @@
             if (baselineReady) {
               setLiveStatus(
                 liveSurface === 'poster'
-                  ? '二维码保持展示，扫码会在本页自动播报（兼容模式）'
+                  ? '现场展示已就绪（兼容模式）'
                   : '实时监听中（兼容模式）',
                 'ok'
               );
