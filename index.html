@@ -428,18 +428,12 @@
     .poster-qr-label {
       display: flex;
       align-items: baseline;
-      justify-content: space-between;
       margin-bottom: 12px;
       color: #e8542a;
-      font-size: 14px;
+      font-size: clamp(17px, 1.7vw, 20px);
+      line-height: 1.15;
       font-weight: 850;
-      letter-spacing: .08em;
-    }
-    .poster-qr-label small {
-      color: rgba(23,25,30,.58);
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .14em;
+      letter-spacing: .025em;
     }
     .poster .qr-box {
       width: clamp(258px, 26vw, 286px);
@@ -718,7 +712,7 @@
       </div>
       <div class="poster-action">
         <div class="poster-qr-wrap">
-          <div class="poster-qr-label"><span>顺手关注一下 ↓</span><small>SCAN TO FOLLOW</small></div>
+          <div class="poster-qr-label"><span>小红书账号 · 顺手关注一下 ↓</span></div>
           <div id="posterQr" class="qr-box"></div>
         </div>
         <div class="poster-meta">
@@ -927,6 +921,9 @@
         });
         return url.href;
       }
+      function ntfyTopicUrl(id) {
+        return new URL('/' + encodeURIComponent(topicFor(id)), NTFY_BASE_URL).href;
+      }
       async function fetchWithTimeout(url, options, ms, message) {
         var controller = typeof AbortController === 'function' ? new AbortController() : null;
         var timer = setTimeout(function () {
@@ -979,16 +976,13 @@
       async function publishEvent(payload) {
         var message = JSON.stringify(payload);
         if (message.length > 3500) throw new Error('播报内容过长，请精简后重试');
+        if (payload.kind === 'scan') return publishScanCompat(payload, message);
         var response = await fetchWithTimeout(
-          NTFY_BASE_URL + '/',
+          ntfyTopicUrl(payload.eventId),
           {
             method: 'POST',
-            cache: 'no-store',
-            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-            body: JSON.stringify({
-              topic: topicFor(payload.eventId),
-              message: message
-            })
+            // 字符串正文会作为 text/plain 简单请求发送，不触发微信/支付宝 WebView 容易失败的 OPTIONS 预检。
+            body: message
           },
           WRITE_TIMEOUT_MS,
           payload.kind === 'scan' ? '播报信号确认超时' : '活动发布超时'
@@ -998,6 +992,43 @@
         try { result = await response.json(); } catch (_) { result = null; }
         if (!result || result.event !== 'message' || !result.id) throw new Error('播报服务返回异常，请重试');
         return result;
+      }
+
+      function publishScanCompat(payload, message) {
+        var publishUrl = new URL(ntfyTopicUrl(payload.eventId) + '/publish');
+        publishUrl.searchParams.set('message', message);
+        var frame = document.createElement('iframe');
+        frame.setAttribute('aria-hidden', 'true');
+        frame.setAttribute('title', '');
+        frame.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;border:0;left:-10px;top:-10px';
+
+        // 隐藏 iframe 的 GET 导航不受 XHR/fetch 跨域预检影响，是微信、支付宝内置浏览器的主通道。
+        // sendBeacon 作为第二条通道；两条消息共用 nonce，播报端会合并为一次。
+        try {
+          if (navigator.sendBeacon) {
+            navigator.sendBeacon(
+              ntfyTopicUrl(payload.eventId),
+              new Blob([message], { type: 'text/plain;charset=UTF-8' })
+            );
+          }
+        } catch (_) { /* iframe 通道继续 */ }
+
+        return new Promise(function (resolve) {
+          var settled = false;
+          var timer = null;
+          function finish() {
+            if (settled) return;
+            settled = true;
+            if (timer) clearTimeout(timer);
+            setTimeout(function () { if (frame.parentNode) frame.parentNode.removeChild(frame); }, 2500);
+            resolve({ event: 'message', id: payload.nonce, compatibilityMode: true });
+          }
+          frame.addEventListener('load', finish, { once: true });
+          frame.addEventListener('error', finish, { once: true });
+          timer = setTimeout(finish, 900);
+          frame.src = publishUrl.href;
+          document.body.appendChild(frame);
+        });
       }
 
       async function loadActivity(id) {
@@ -1400,7 +1431,8 @@
         });
       }
       function scanDocId(doc) {
-        return doc && (doc._id || doc.nonce || String(doc.createdAt || ''));
+        // 兼容通道可能送达两份同 nonce 信号；始终按 nonce 去重，确保只播一次。
+        return doc && (doc.nonce || doc._id || String(doc.createdAt || ''));
       }
       function markListenerReady() {
         setLivePulse(true);
@@ -1651,15 +1683,14 @@
           location.replace(target);
         }
         byId('jumpButton').addEventListener('click', go);
-        try {
-          var config = await withTimeout(loadActivity(eventId), CONFIG_TIMEOUT_MS, '活动配置加载超时');
-          target = safeXhsUrl(config.target) || DEFAULT_TARGET;
-        } catch (_) {
-          target = DEFAULT_TARGET;
-        }
+        // 目标地址在后台补充，不再让跨域配置读取挡住扫码信号；当前默认小红书地址可立即使用。
+        withTimeout(loadActivity(eventId), CONFIG_TIMEOUT_MS, '活动配置加载超时')
+          .then(function (config) { target = safeXhsUrl(config.target) || DEFAULT_TARGET; })
+          .catch(function () { target = DEFAULT_TARGET; });
         byId('jumpButton').classList.remove('hidden');
         var lastKey = 'dadi-scan-' + eventId;
-        var lastScan = Number(localStorage.getItem(lastKey) || 0);
+        var lastScan = 0;
+        try { lastScan = Number(localStorage.getItem(lastKey) || 0); } catch (_) { lastScan = 0; }
         if (Date.now() - lastScan < SCAN_DEDUPE_MS) {
           updateScanSuccess('刚刚已经响应', '这台手机的重复扫码已自动合并，正在前往小红书。', '无需再次播报');
           redirectTimer = setTimeout(go, 1100);
@@ -1673,7 +1704,7 @@
             createdAt: Date.now(),
             source: 'qr'
           });
-          localStorage.setItem(lastKey, String(Date.now()));
+          try { localStorage.setItem(lastKey, String(Date.now())); } catch (_) { /* 隐私模式继续跳转 */ }
           updateScanSuccess('欢迎关注！', '正在为你打开“大迪在面壁”的小红书主页。', '谢谢岩友来玩');
           redirectTimer = setTimeout(go, 1200);
         } catch (error) {
