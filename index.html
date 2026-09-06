@@ -1112,8 +1112,17 @@
           return item && item.kind === 'activity';
         });
         configs.sort(function (a, b) { return Number(b.createdAt || 0) - Number(a.createdAt || 0); });
-        if (!configs.length) throw new Error('没有找到本次活动配置');
-        var config = configs[0];
+        // ntfy 的匿名历史会自动过期；固定活动仍要能沿用默认主页和播报音频。
+        var config = configs[0] || {
+          kind: 'activity',
+          eventId: id,
+          target: DEFAULT_TARGET,
+          speech: DEFAULT_SPEECH,
+          ttsSpeech: DEFAULT_TTS_SPEECH,
+          audioFile: AUDIO_FILE,
+          createdAt: 0,
+          builtInFallback: true
+        };
         config.target = safeXhsUrl(config.target) || DEFAULT_TARGET;
         config.speech = String(config.speech || DEFAULT_SPEECH);
         config.ttsSpeech = String(config.ttsSpeech || config.speech || DEFAULT_TTS_SPEECH);
