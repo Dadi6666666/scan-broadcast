@@ -1,0 +1,7 @@
+node_modules/
+.deployment/
+server/data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+.DS_Store

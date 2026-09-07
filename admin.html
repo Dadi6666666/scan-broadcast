@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff9ef">
+  <meta name="robots" content="noindex, nofollow">
+  <title>现场数据 · 大迪在面壁</title>
+  <link rel="stylesheet" href="admin.css">
+  <script src="runtime-config.js"></script>
+  <script src="admin.js" defer></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="page-head">
+      <a class="brand" href="./"><span class="brand-icon" aria-hidden="true">迪</span><span><strong>大迪在面壁</strong><small>跟墙讲道理 · 现场数据</small></span></a>
+      <div class="head-actions"><a id="mainPosterLink" class="text-link" href="./?mode=poster">打开现场海报 ↗</a><button id="logoutButton" type="button" class="button quiet hidden">退出后台</button></div>
+    </header>
+
+    <section id="loginPanel" class="login-card card">
+      <span class="eyebrow">现场结束了，数据还在。</span>
+      <h1>看看今天，<br>来了多少位岩友。</h1>
+      <p class="muted">输入管理员口令，查看活动记录与播报情况。</p>
+      <form id="loginForm" class="login-form">
+        <label for="adminPassword">管理员口令</label>
+        <input id="adminPassword" type="password" autocomplete="current-password" required placeholder="输入管理员口令">
+        <button id="loginButton" type="submit" class="button primary">进入数据后台</button>
+      </form>
+      <p id="loginStatus" class="status" role="status" aria-live="polite">数据由服务端保存，口令不会放进链接。</p>
+    </section>
+
+    <div id="dashboard" class="hidden">
+      <section class="dashboard-heading">
+        <div><span class="eyebrow">线下有反馈，复盘有依据</span><h1>现场数据</h1></div>
+        <p id="updatedAt" class="muted">尚未加载</p>
+      </section>
+      <form id="filterForm" class="filter-card card">
+        <label>活动<select id="eventFilter"><option value="">全部活动</option></select></label>
+        <label>场次<select id="sessionFilter"><option value="">全部场次</option></select></label>
+        <label>开始日期<input id="fromDate" type="date"></label>
+        <label>结束日期<input id="toDate" type="date"></label>
+        <button id="refreshButton" class="button primary" type="submit">查看数据</button>
+        <button id="allDatesButton" class="button quiet" type="button">全部日期</button>
+      </form>
+      <p id="dashboardStatus" class="status" role="status" aria-live="polite"></p>
+
+      <section class="metrics" aria-label="活动统计">
+        <article class="metric"><span>扫码次数</span><strong id="scanCount">—</strong><small>同次发送去重后计入</small></article>
+        <article class="metric"><span>匿名访客</span><strong id="visitorCount">—</strong><small>按浏览器匿名标识去重</small></article>
+        <article class="metric"><span>尝试打开主页</span><strong id="profileCount">—</strong><small>含自动跳转，不代表打开成功</small></article>
+        <article class="metric"><span>播报成功</span><strong id="audioSuccessCount">—</strong><small>播放设备回报播放完成</small></article>
+        <article class="metric"><span>播报失败</span><strong id="audioFailureCount">—</strong><small>播放设备回报播放异常</small></article>
+      </section>
+      <aside class="measurement-note"><strong>关注数据尚未授权获取</strong><p>扫码、点击主页不等于已关注。当前无法自动获得小红书新增关注数，因此不计算关注转化率。匿名访客按浏览器区分，同一人换设备或清除数据可能重复计入。</p></aside>
+
+      <section class="card records-card">
+        <div class="section-head"><div><h2>最近记录</h2><p class="muted">与上方活动和日期筛选一致</p></div><button id="exportButton" class="button quiet" type="button" disabled>导出 CSV</button></div>
+        <div class="table-scroll"><table><thead><tr><th>时间</th><th>活动</th><th>记录类型</th><th>扫码方式</th><th>匿名访客</th><th>状态</th></tr></thead><tbody id="recordsBody"><tr><td colspan="6" class="empty-state">等待加载</td></tr></tbody></table></div>
+        <p id="recordsHint" class="table-hint"></p>
+      </section>
+
+      <section class="card entry-card">
+        <div class="section-head"><div><h2>活动固定入口</h2><p class="muted">保存现场海报链接，下次直接打开。</p></div></div>
+        <div id="eventLinks" class="event-links"><p class="muted">等待加载活动配置</p></div>
+        <form id="newSessionForm" class="new-session-form"><label>新场次名称<input id="sessionName" type="text" maxlength="80" placeholder="例如：周日攀岩馆 · 下午场" required></label><button class="button quiet" id="newSessionButton" type="submit">开始新场次</button></form>
+        <p id="sessionStatus" class="status" role="status">先在上方选择一项活动，再开始新场次。历史记录会保留。</p>
+      </section>
+
+      <section class="card native-card">
+        <div class="section-head"><div><span class="xhs-badge">小红书</span><h2>原生关注码</h2><p class="muted">用于小红书 App 内直接扫描关注。</p></div><span id="nativeStorageBadge" class="storage-badge">活动云端配置</span></div>
+        <div class="native-grid">
+          <div class="native-preview"><img id="nativeQrImage" class="hidden" alt="大迪在面壁的小红书原生关注码"><p id="nativeQrEmpty">尚未配置<br><small>上传从小红书 App 保存的个人主页二维码</small></p></div>
+          <div>
+            <p class="native-explanation">请从小红书 App 的个人主页保存二维码图片，完整上传原图。这里不会把网页链接伪装成官方码。</p>
+            <label class="file-label" for="nativeQrFile">选择二维码图片<input id="nativeQrFile" type="file" accept="image/png,image/jpeg,image/webp"></label>
+            <p class="muted compact">支持 PNG、JPG、WebP，最大 512 KB。请在上方先选择活动。</p>
+            <p id="nativeQrStatus" class="status" role="status" aria-live="polite">上传后保存到活动，现场 iPad 刷新即可读取。</p>
+            <div class="inline-actions"><button id="downloadQrButton" class="button quiet" type="button" disabled>下载图片</button><button id="removeQrButton" class="button quiet" type="button" disabled>移除活动图片</button></div>
+            <details class="image-url-details"><summary>使用已有的图片地址</summary><form id="nativeUrlForm" class="native-url-form"><label for="nativeQrUrl">官方二维码图片地址</label><input id="nativeQrUrl" type="url" placeholder="https://…/二维码图片.png"><button id="saveNativeUrlButton" class="button quiet" type="submit">保存图片地址</button></form><p id="nativeUrlStatus" class="status" role="status">仅接受可访问的 HTTPS 图片地址；二维码分享链接不是图片地址。</p></details>
+            <p class="native-boundary"><strong>这条入口不会自动计数或播报。</strong>原生码直接进入小红书，不经过我们的扫码网页。请不要把它的扫码量与上方网页统计混为一谈。</p>
+          </div>
+        </div>
+      </section>
+    </div>
+    <footer>墙上没有玄学，只有还没讲明白的道理。</footer>
+  </main>
+</body>
+</html>

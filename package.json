@@ -1,0 +1,12 @@
+{
+  "name": "dadi-scan-broadcast",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Persistent scan records and on-site announcements",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "optionalDependencies": { "@cloudbase/node-sdk": "3.18.1" }
+}
